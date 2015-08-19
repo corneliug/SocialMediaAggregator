@@ -14,7 +14,7 @@ module.exports = {
   },
   accounts: {
     twitter: ["@cristiano", "@facebook", "#govtech"],
-    facebook: ["@cristiano", "#football"],
+    facebook: ["@cristiano", "@facebook", "#football"],
     instagram: ["@repostapp", "@nike", "#shoes"],
     youtube: ["@CollegeHumor", "#sports"]
   }

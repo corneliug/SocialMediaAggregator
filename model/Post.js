@@ -6,7 +6,7 @@ Schema = mongoose.Schema;
 ObjectId = Schema.ObjectId;
 
 Post = new Schema({
-    id: String,
+    id: {type: String, unique : true, required : true, dropDups: true},
     date: Date,
     service: String,
     account: String,
@@ -29,8 +29,18 @@ Post.static('getLastPostTime', function(service, match, callback){
         var dt = new Date();
         dt = parseInt(dt.getTime()/1000)-5*24*60*60;
 
-        //return posts.length!=0 ? callback(posts[0].date.getTime()) : callback(dt);
-        return callback('1437394546');
+        return posts.length!=0 ? callback(posts[0].date.getTime()) : callback(dt);
+    });
+});
+
+Post.static('getLastPostId', function(service, match, callback){
+    this.find({
+        service: service,
+        match: match
+    }).sort({
+        id: -1
+    }).exec(function (err, posts) {
+        return posts.length!=0 ? callback(posts[0].id) : callback(undefined);
     });
 });
 

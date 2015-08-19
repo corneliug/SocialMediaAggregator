@@ -37,12 +37,12 @@ exports.gatherSearchCriteria = function(callback){
 
 exports.aggregateData = function() {
     var $that = this;
+
     AggregatorController.gatherSearchCriteria(AggregatorController.PLATFORMS.FACEBOOK, function(criteria){
         searchCriteria = criteria;
 
         $that.extractData();
     });
-
 }
 
 exports.authenticate = function(callback){
@@ -236,7 +236,7 @@ exports.extractNextInfo = function(bufferedPage, callback){
 
                 entry.service = "facebook";
                 entry.profile = bufferedPage.profile;
-                entry.account = "@" + bufferedPage.profile;
+                entry.account = bufferedPage.profile;
                 entry.match = "@" + bufferedPage.profile;
 
                 extractedPosts.push(entry);
