@@ -8,13 +8,6 @@ var express = require('express'),
 var session = {};
 var searchCriteria = {};
 
-var CRITERIA_TYPE = {
-    HASHTAG : '#',
-    PROFILE : '@'
-}
-
-var extractedPosts = [];
-
 exports.aggregateData = function() {
     var $that = this;
 
@@ -56,7 +49,7 @@ exports.extractData = function(){
 
     searchCriteria.profiles.forEach(function(profile){
         profilesTasks.push(function(callback){
-            $that.getLastPostId(profile, function(lastPostId){
+            $that.getLastPostId('@' + profile, function(lastPostId){
                 $that.extractProfilePosts(profile, lastPostId, function(posts){
                     $that.saveProfilePosts(profile, posts, callback);
                 });
@@ -66,7 +59,7 @@ exports.extractData = function(){
 
     searchCriteria.tags.forEach(function(tag){
         tagsTasks.push(function(callback){
-            $that.getLastPostId(tag, function(lastPostId){
+            $that.getLastPostId('#' + tag, function(lastPostId){
                 $that.extractTagPosts(tag, lastPostId, function(posts){
                     $that.saveTagsPosts(tag, posts, callback);
                 });
@@ -74,15 +67,15 @@ exports.extractData = function(){
         });
     });
 
-    //async.parallel(profilesTasks, function(){
-    //});
+    async.parallel(profilesTasks, function(){
+    });
 
     async.parallel(tagsTasks, function(){
     });
 }
 
 exports.getLastPostId = function(match, callback){
-    Post.getLastPostId('twitter', '@' + match, function(lastPostId){
+    Post.getLastPostId('twitter', match, function(lastPostId){
         return callback(lastPostId);
     });
 }
@@ -102,8 +95,6 @@ exports.extractTagPosts = function(tag, lastPostId, callback){
         }
     }, function(error, response, body) {
         body = JSON.parse(body);
-
-        console.log(body.statuses);
 
         return callback(body.statuses);
     });

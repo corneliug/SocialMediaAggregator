@@ -1,0 +1,34 @@
+var express = require('express'),
+    request = require('request'),
+    api = require('instagram-node').instagram(),
+    InstagramAggregator = require('../social_media_aggregator/data_extractors/InstagramAggregator'),
+    router = express.Router();
+
+var redirect_uri = 'http://localhost:8080/instagram/authcallback';
+
+router.get('/authenticate', function(req, res) {
+    console.log("authenticate");
+    api.use({client_id: '1da7d5643ac64630b99eba92610c7583',
+             client_secret: 'ca04749b72d047dfa8e03bca7df98ec9'});
+
+    res.redirect(api.get_authorization_url('http://localhost:8080/instagram/authcallback'));
+});
+
+router.get('/authcallback', function(req, res) {
+    var $that = this;
+
+    api.authorize_user(req.query.code, redirect_uri, function(err, result) {
+        console.log("auth callback " + result.access_token);
+
+        if (err) {
+            console.log(err.body);
+        } else {
+            sessions.instagram = result.access_token;
+            InstagramAggregator.aggregateData();
+        }
+
+        res.send("authenticated");
+    });
+});
+
+module.exports = router;

@@ -11,6 +11,7 @@
     "mongoose": ">=4.1.2",
     "express-session": ">= 1.6.1",
     "fb": ">= 0.0.0",
-    "twitter": ">= 1.2.5"
+    "twitter": ">= 1.2.5",
+    "instagram-node": ">= 0.0.0"
   }
 }

@@ -1,6 +1,7 @@
 var express            = require('express'),
     FacebookAggregator = require('./data_extractors/FacebookAggregator'),
     TwitterAggregator = require('./data_extractors/TwitterAggregator'),
+    InstagramAggregator = require('./data_extractors/InstagramAggregator'),
     credentials = require("../config/credentials.js");
 
 var CRITERIA_TYPE = {
@@ -29,7 +30,8 @@ exports.PLATFORMS = {
 
 exports.startExecution = function(){
     //FacebookAggregator.aggregateData();
-    TwitterAggregator.aggregateData();
+    //TwitterAggregator.aggregateData();
+    //InstagramAggregator.aggregateData();
 }
 
 exports.gatherSearchCriteria = function(platform, callback){
