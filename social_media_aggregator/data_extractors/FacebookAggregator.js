@@ -105,7 +105,7 @@ exports.extractProfilePosts = function(profile, callback){
 
     var $that = this;
 
-    $that.getLastPostTime(profile, function(lastPostTime){
+    $that.getLastPostTime('@' + profile, function(lastPostTime){
 
         $that.extractPostsInfo(profile, lastPostTime, function(){
 
@@ -134,8 +134,8 @@ exports.extractProfilePosts = function(profile, callback){
 }
 
 // will query the db to get the laast post datetime for a profile
-exports.getLastPostTime = function(profile, callback){
-    Post.getLastPostTime('facebook', '@' + profile, function(lastPostTime){
+exports.getLastPostTime = function(match, callback){
+    Post.getLastPostTime('facebook', match, function(lastPostTime){
         return callback(lastPostTime);
     });
 }
@@ -143,10 +143,12 @@ exports.getLastPostTime = function(profile, callback){
 // extracts id, message, creted_time, icon, link
 exports.extractPostsInfo = function(profile, lastPostTime, callback){
     var $that = this;
+    var url = profile + '/posts?access_token=' + session.access_token
+        + "&fields=id,message,created_time,icon,link";
 
-    FB.api(profile + '/posts?access_token=' + session.access_token
-        + "&fields=id,message,created_time,icon,link"
-        + "&since=" + lastPostTime, function (res) {
+    url += lastPostTime!=undefined ? "&since=" + lastPostTime : "&limit=20";
+
+    FB.api(url, function (res) {
 
             if(!res || res.error) {
                 console.log(!res ? 'error occurred' : res.error);

@@ -29,8 +29,8 @@ exports.PLATFORMS = {
 }
 
 exports.startExecution = function(){
-    //FacebookAggregator.aggregateData();
-    //TwitterAggregator.aggregateData();
+    FacebookAggregator.aggregateData();
+    TwitterAggregator.aggregateData();
     //InstagramAggregator.aggregateData();
 }
 

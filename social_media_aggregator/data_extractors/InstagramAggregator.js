@@ -90,6 +90,20 @@ exports.extractProfilePosts = function(profileid, lastPostId, callback){
     });
 }
 
+exports.extractTagPosts = function(tag, lastPostId, callback){
+    var url = 'https://api.instagram.com/v1/tags/' + tag + '/media/recent/?access_token=' + sessions.instagram
+    url += lastPostId!=undefined ? "&min_id=" + lastPostId : "&count=20";
+
+    request({
+        url: url,
+        method: 'GET'
+    }, function(error, response, body) {
+        body = JSON.parse(body);
+
+        return callback(body.data);
+    });
+}
+
 exports.savePosts = function(match, posts, callback){
     var postsTasks = [];
 
