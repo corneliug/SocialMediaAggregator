@@ -1,6 +1,7 @@
 var express = require('express'),
     path = require('path'),
-    logger = require('morgan'),
+    reqLogger = require('morgan'),
+    winston = require('winston'),
     session = require('express-session'),
     AggregatorController = require(__dirname + '/social_media_aggregator/AggregatorController'),
     InstagramRoutes = require(__dirname + '/routes/InstagramRoutes');
@@ -10,7 +11,15 @@ global.sessions = {};
 
 var app = express();
 
-app.use(logger('dev'));
+winston.level = config.app.logging_level;
+global.logger = new (winston.Logger)({
+    transports: [
+        new (winston.transports.Console)(),
+        new (winston.transports.File)({ filename: 'app.log' })
+    ]
+});
+
+app.use(reqLogger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ secret: 'asd13asd786youtasvasdas3a78vwe123' }));
 

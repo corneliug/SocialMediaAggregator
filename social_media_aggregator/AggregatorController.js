@@ -30,10 +30,10 @@ exports.PLATFORMS = {
 }
 
 exports.startExecution = function(){
-    //FacebookAggregator.aggregateData();
+    FacebookAggregator.aggregateData();
     //TwitterAggregator.aggregateData();
     //InstagramAggregator.aggregateData();
-    YoutubeAggregator.aggregateData();
+    //YoutubeAggregator.aggregateData();
 }
 
 exports.gatherSearchCriteria = function(platform, callback){

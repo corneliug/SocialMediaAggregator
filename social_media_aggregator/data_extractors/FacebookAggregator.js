@@ -31,7 +31,7 @@ exports.gatherSearchCriteria = function(callback){
         }
     }
 
-    console.log("Gathered search criteria for Facebook...");
+    logger.log('info',"Gathered search criteria for Facebook...");
     return callback;
 }
 
@@ -49,13 +49,9 @@ exports.authenticate = function(callback){
     FB.api('oauth/access_token', {
         client_id: config.apps.facebook.key,
         client_secret: config.apps.facebook.secret,
-        grant_type: 'client_config'
+        grant_type: 'client_credentials'
     }, function (res) {
-        if(!res || res.error) {
-            console.log(!res ? 'error occurred' : res.error);
-            return;
-        }
-        console.log("Authentication to Facebook was successful!");
+        logger.log('info',"Authentication to Facebook was successful!");
 
         session.access_token    = res.access_token;
         session.expires         = new Date().getTime() + (res.expires || 0) * 1000;
@@ -66,25 +62,42 @@ exports.authenticate = function(callback){
 }
 
 exports.ensureAuthenticated = function(callback){
-    if(this.isSessionValid()){
-        return callback();
-    } else {
-        console.log("Facebook session not valid");
-        this.authenticate(function(){
+    var $that = this;
+
+    this.isSessionValid(function(sessionValid){
+        if(sessionValid){
             return callback();
-        });
-    }
+        } else {
+            logger.log('info',"Facebook session not valid");
+            $that.authenticate(function(){
+                return callback();
+            });
+        }
+    });
 }
 
-exports.isSessionValid = function(){
-    return session.access_token!=null && new Date().getTime() - session.expires > 0;
+exports.isSessionValid = function(callback){
+    var $that = this;
+    var accessTokenNotExpired = session.access_token!=null && new Date().getTime() - session.expires > 0;
+
+    if(accessTokenNotExpired){
+        FB.api('facebook?access_token=' + session.access_token, function (res) {
+            if(!res || res.error) {
+                return callback(false);
+            }
+
+            return callback(true);
+        });
+    } else {
+        return callback(false);
+    }
 }
 
 exports.extractData = function(){
     var $that = this;
 
     $that.ensureAuthenticated(function(){
-        console.log("Extracting data from Facebook...");
+        logger.log('info',"Extracting data from Facebook...");
         var asyncTasks = [];
 
         searchCriteria.profiles.forEach(function(profile){
@@ -94,14 +107,16 @@ exports.extractData = function(){
         });
 
         async.parallel(asyncTasks, function(){
-            $that.extractPostsFromBufferedPages();
+            if(asyncTasks.length < config.app.postLimit) {
+                $that.extractPostsFromBufferedPages();
+            }
         });
 
     })
 }
 
 exports.extractProfilePosts = function(profile, callback){
-    console.log("Extracting data from Facebook profile " + profile);
+    logger.log('info',"Extracting data from Facebook profile " + profile);
 
     var $that = this;
 
@@ -143,16 +158,16 @@ exports.getLastPostTime = function(match, callback){
 // extracts id, message, creted_time, icon, link
 exports.extractPostsInfo = function(profile, lastPostTime, callback){
     var $that = this;
-    var url = profile + '/posts?access_token=' + session.access_token
-        + "&fields=id,message,created_time,icon,link";
+    var url = profile + '/posts?fields=id,message,created_time,icon,link';
+    url += '&access_token=' + session.access_token;
 
-    url += lastPostTime!=undefined ? "&since=" + lastPostTime : "&limit=20";
+    url += lastPostTime!=undefined ? "&since=" + lastPostTime : "&limit=" + config.app.postsLimit;
 
     FB.api(url, function (res) {
-
             if(!res || res.error) {
-                console.log(!res ? 'error occurred' : res.error);
-                return;
+                $that.handleError(res.error.code, res.error.message, function(){
+                    return $that.extractPostsInfo(profile, lastPostTime, callback);
+                });
             }
 
             if(res!=undefined && res.data!=undefined && res.data.length!=0){
@@ -161,7 +176,6 @@ exports.extractPostsInfo = function(profile, lastPostTime, callback){
 
                     entry.service = "facebook";
                     entry.profile = profile;
-                    entry.account = "@" + profile;
                     entry.match = "@" + profile;
 
                     extractedPosts.push(entry);
@@ -226,10 +240,18 @@ exports.extractPostsFromBufferedPages = function(){
 }
 
 exports.extractNextInfo = function(bufferedPage, callback){
+    var $that = this;
+
     request({
         uri: bufferedPage.url,
         method: "GET"
     }, function(error, response, body) {
+        if(error) {
+            $that.handleError(error.code, error.message, function(){
+                return $that.extractNextInfo(bufferedPage, callback);
+            });
+        }
+
         body = JSON.parse(body);
 
         if(body!=undefined && body.data!=undefined && body.data.length!=0){
@@ -238,7 +260,6 @@ exports.extractNextInfo = function(bufferedPage, callback){
 
                 entry.service = "facebook";
                 entry.profile = bufferedPage.profile;
-                entry.account = bufferedPage.profile;
                 entry.match = "@" + bufferedPage.profile;
 
                 extractedPosts.push(entry);
@@ -260,12 +281,12 @@ exports.extractNextInfo = function(bufferedPage, callback){
 exports.extractPostsLikes = function(post, cb){
     var $that = this;
 
-    FB.api(post.id + '/likes?access_token=' + session.access_token
-        + "&summary=true", function (res) {
+    FB.api(post.id + '/likes?summary=true&access_token=' + session.access_token, function (res) {
 
         if(!res || res.error) {
-            console.log(!res ? 'error occurred' : res.error);
-            return;
+            $that.handleError(res.error.code, res.error.message, function(){
+                return $that.extractPostsLikes(post, cb);
+            });
         }
 
         if(res!=undefined && res.summary!=undefined){
@@ -284,7 +305,7 @@ exports.savePost = function(postInfo, callback) {
     post.id = postInfo.id;
     post.date = new Date(postInfo.created_time);
     post.service = postInfo.service;
-    post.account = postInfo.account;
+    post.account = postInfo.profile;
     post.match = postInfo.match;
     post.icon = postInfo.icon;
     post.url = postInfo.link;
@@ -293,4 +314,65 @@ exports.savePost = function(postInfo, callback) {
 
     post.save();
     callback();
+}
+
+exports.handleError = function(errCode, errMessage, nextAction){
+    var $that = this;
+    switch (errCode) {
+        // access_token expired
+        case 102: {
+            $that.errorHandlers.handleExpiredToken(errCode, nextAction);
+        }
+
+        // access_token expired
+        case 104: {
+            $that.errorHandlers.handleExpiredToken(errCode, nextAction);
+        }
+
+        // access_token expired
+        case 190: {
+            $that.errorHandlers.handleExpiredToken(errCode, nextAction);
+        }
+
+        // access_token expired
+        case 463: {
+            $that.errorHandlers.handleExpiredToken(errCode, nextAction);
+        }
+
+        // access_token expired
+        case 467: {
+            $that.errorHandlers.handleExpiredToken(errCode, nextAction);
+        }
+
+        // OAuthException
+        case 190: {
+            $that.errorHandlers.handleExpiredToken(errCode, nextAction);
+        }
+
+        // OAuthException
+        case 191: {
+            logger.log('info',"Error " + errCode + " occurred: " + errMessage);
+            return ;
+        }
+
+        // Bad search key
+        case 803: {
+            logger.log('info',errMessage);
+            return ;
+        }
+
+        default: {
+            logger.log('info',"Failed to handle error " + errCode + ": " + errMessage);
+        }
+    }
+}
+
+
+var $that = this;
+
+exports.errorHandlers = {
+    handleExpiredToken: function(errCode, nextAction){
+        logger.log('info',errCode + ": handling expired access_token");
+        $that.authenticate(nextAction);
+    }
 }

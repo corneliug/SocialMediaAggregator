@@ -2,7 +2,8 @@ module.exports = {
   db : "mongodb://sma:sma1@ds031873.mongolab.com:31873/socialmediaaggregator",
   app: {
     frequency: 3600, //in seconds=1 hr
-    postsLimit: 20
+    postsLimit: 1,
+    logging_level: 'info'
   },
   apps: {
     twitter: {key: "zm1Xhonwx2cy7Uv4TAp7WwsAB", secret: "7Crzdui213HnKwOyDSg1Fu3qJPMjuZEoIzC2KNl38zxR4dcJ8R"},
@@ -12,7 +13,7 @@ module.exports = {
   },
   accounts: {
     twitter: ["@cristiano", "@facebook", "#govtech"],
-    facebook: ["@cristano", "@facebook", "#football"],
+    facebook: ['@cristano', "@cristiano", "@facebook"],
     instagram: ["@repostapp", "@nike", "#shoes"],
     youtube: ["@overboardhumor", "#sports"]
   }
