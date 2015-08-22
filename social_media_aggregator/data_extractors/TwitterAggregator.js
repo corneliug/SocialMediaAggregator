@@ -21,9 +21,9 @@ exports.aggregateData = function() {
 }
 
 exports.authenticate = function(callback){
-    var encodedAuth = 'Basic ' + btoa(credentials.apps.twitter.key + ":" + credentials.apps.twitter.secret);
+    var encodedAuth = 'Basic ' + btoa(config.apps.twitter.key + ":" + config.apps.twitter.secret);
     var formData = {
-        grant_type: 'client_credentials'
+        grant_type: 'client_config'
     }
 
     request({
@@ -84,7 +84,7 @@ exports.extractTagPosts = function(tag, lastPostId, callback){
     console.log("Extracting data from Twitter tag " + tag);
 
     var url = 'https://api.twitter.com/1.1/search/tweets.json?q=%23' + tag;
-    url += lastPostId!=undefined ? "&since_id=" + lastPostId : "&count=20";
+    url += lastPostId!=undefined ? "&since_id=" + lastPostId : "&count=" + config.app.frequency;
     url += "&result_type=recent";
 
     request({
@@ -104,7 +104,7 @@ exports.extractProfilePosts = function(profile, lastPostId, callback){
     console.log("Extracting data from Twitter profile " + profile);
 
     var url = 'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=' + profile;
-    url += lastPostId!=undefined ? "&since_id=" + lastPostId : "&count=20";
+    url += lastPostId!=undefined ? "&since_id=" + lastPostId : "&count=" + config.app.frequency;
 
     request({
         url: url,

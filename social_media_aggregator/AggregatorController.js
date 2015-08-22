@@ -2,7 +2,8 @@ var express            = require('express'),
     FacebookAggregator = require('./data_extractors/FacebookAggregator'),
     TwitterAggregator = require('./data_extractors/TwitterAggregator'),
     InstagramAggregator = require('./data_extractors/InstagramAggregator'),
-    credentials = require("../config/credentials.js");
+    YoutubeAggregator = require('./data_extractors/YoutubeAggregator'),
+    config = require("../config/config.js");
 
 var CRITERIA_TYPE = {
     HASHTAG : '#',
@@ -12,26 +13,27 @@ var CRITERIA_TYPE = {
 exports.PLATFORMS = {
     FACEBOOK: {
         NAME: 'Facebook',
-        CRITERIA: credentials.accounts.facebook
+        CRITERIA: config.accounts.facebook
     },
     TWITTER: {
         NAME: 'Twitter',
-        CRITERIA: credentials.accounts.twitter
+        CRITERIA: config.accounts.twitter
     },
     INSTAGRAM: {
         NAME: 'Instagram',
-        CRITERIA: credentials.accounts.instagram
+        CRITERIA: config.accounts.instagram
     },
     YOUTUBE: {
         NAME: 'Youtube',
-        CRITERIA: credentials.accounts.youtube
+        CRITERIA: config.accounts.youtube
     }
 }
 
 exports.startExecution = function(){
-    FacebookAggregator.aggregateData();
-    TwitterAggregator.aggregateData();
+    //FacebookAggregator.aggregateData();
+    //TwitterAggregator.aggregateData();
     //InstagramAggregator.aggregateData();
+    YoutubeAggregator.aggregateData();
 }
 
 exports.gatherSearchCriteria = function(platform, callback){

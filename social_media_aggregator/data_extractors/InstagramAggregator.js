@@ -78,7 +78,7 @@ exports.getLastPostId = function(match, callback){
 
 exports.extractProfilePosts = function(profileid, lastPostId, callback){
     var url = 'https://api.instagram.com/v1/users/' + profileid + '/media/recent/?access_token=' + sessions.instagram
-    url += lastPostId!=undefined ? "&min_id=" + lastPostId : "&count=20";
+    url += lastPostId!=undefined ? "&min_id=" + lastPostId : "&count=" + config.app.frequency;
 
     request({
         url: url,
@@ -92,7 +92,7 @@ exports.extractProfilePosts = function(profileid, lastPostId, callback){
 
 exports.extractTagPosts = function(tag, lastPostId, callback){
     var url = 'https://api.instagram.com/v1/tags/' + tag + '/media/recent/?access_token=' + sessions.instagram
-    url += lastPostId!=undefined ? "&min_id=" + lastPostId : "&count=20";
+    url += lastPostId!=undefined ? "&min_id=" + lastPostId : "&count=" + config.app.frequency;
 
     request({
         url: url,

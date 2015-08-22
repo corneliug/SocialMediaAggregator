@@ -18,7 +18,7 @@ var bufferedPages = [];
 var bufferedPagesInExec = [];
 
 exports.gatherSearchCriteria = function(callback){
-    var criteriaList = credentials.accounts.facebook;
+    var criteriaList = config.accounts.facebook;
 
     for(var index in criteriaList) {
         var criteria = criteriaList[index];
@@ -47,9 +47,9 @@ exports.aggregateData = function() {
 
 exports.authenticate = function(callback){
     FB.api('oauth/access_token', {
-        client_id: credentials.apps.facebook.key,
-        client_secret: credentials.apps.facebook.secret,
-        grant_type: 'client_credentials'
+        client_id: config.apps.facebook.key,
+        client_secret: config.apps.facebook.secret,
+        grant_type: 'client_config'
     }, function (res) {
         if(!res || res.error) {
             console.log(!res ? 'error occurred' : res.error);

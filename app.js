@@ -5,7 +5,7 @@ var express = require('express'),
     AggregatorController = require(__dirname + '/social_media_aggregator/AggregatorController'),
     InstagramRoutes = require(__dirname + '/routes/InstagramRoutes');
 
-global.credentials = require(__dirname + "/config/credentials.js");
+global.config = require(__dirname + "/config/config.js");
 global.sessions = {};
 
 var app = express();
