@@ -171,6 +171,7 @@ exports.extractPostsInfo = function(profile, lastPostTime, callback){
             }
 
             if(res!=undefined && res.data!=undefined && res.data.length!=0){
+                logger.log('info', 'extracted %s new posts from facebook profile %s', res.data.length, profile);
                 for(var i in res.data){
                     var entry = res.data[i];
 
