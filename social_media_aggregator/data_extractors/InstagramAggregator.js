@@ -13,14 +13,16 @@ exports.aggregateData = function() {
     AggregatorController.gatherSearchCriteria(AggregatorController.PLATFORMS.INSTAGRAM, function(criteria){
         searchCriteria = criteria;
 
-        $that.ensureAuthenticated(function(){
-            $that.extractData();
+        $that.ensureAuthenticated(function(isAuthenticated){
+            if(isAuthenticated){
+                $that.extractData();
+            }
         });
     });
 }
 
 exports.ensureAuthenticated = function(callback){
-    return callback();
+    return sessions!=undefined && sessions.instagram!=undefined ? callback(true) : callback(false);
 }
 
 exports.extractData = function(){
@@ -60,6 +62,7 @@ exports.extractData = function(){
 }
 
 exports.getProfileId = function(profile, callback){
+    logger.log('info', 'Extracting data from Instagram profile %s', profile);
     request({
         url: 'https://api.instagram.com/v1/users/search?q=' + profile + '&access_token=' + sessions.instagram,
         method: 'GET'
@@ -86,11 +89,13 @@ exports.extractProfilePosts = function(profileid, lastPostId, callback){
     }, function(error, response, body) {
         body = JSON.parse(body);
 
+        logger.log('info', 'Extracted %s new posts from Instagram profile %s', body.data.length, profileid);
         return callback(body.data);
     });
 }
 
 exports.extractTagPosts = function(tag, lastPostId, callback){
+    logger.log('info', 'Extracting data from Instagram tag %s', tag);
     var url = 'https://api.instagram.com/v1/tags/' + tag + '/media/recent/?access_token=' + sessions.instagram
     url += lastPostId!=undefined ? "&min_id=" + lastPostId : "&count=" + config.app.frequency;
 
@@ -100,6 +105,7 @@ exports.extractTagPosts = function(tag, lastPostId, callback){
     }, function(error, response, body) {
         body = JSON.parse(body);
 
+        logger.log('info', 'Extracted %s new posts from Instagram tag %s', body.data.length, tag);
         return callback(body.data);
     });
 }

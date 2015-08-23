@@ -4,19 +4,17 @@ var express = require('express'),
     InstagramAggregator = require('../social_media_aggregator/data_extractors/InstagramAggregator'),
     router = express.Router();
 
-var redirect_uri = 'http://localhost:8080/instagram/authcallback';
-
 router.get('/authenticate', function(req, res) {
-    console.log("authenticate");
+    logger.log('debug', 'Authenticating to Instagram');
     api.use({client_id: config.apps.instagram.key,
              client_secret: config.apps.instagram.secret});
 
-    res.redirect(api.get_authorization_url('http://localhost:8080/instagram/authcallback'));
+    res.redirect(api.get_authorization_url(config.apps.instagram.redirectUri));
 });
 
 router.get('/authcallback', function(req, res) {
-    api.authorize_user(req.query.code, redirect_uri, function(err, result) {
-        console.log("auth callback " + result.access_token);
+    api.authorize_user(req.query.code, config.apps.instagram.redirectUri, function(err, result) {
+        logger.log('debug', 'Authentication to Instagram was successful!');
 
         if (err) {
             console.log(err.body);

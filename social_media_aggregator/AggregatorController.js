@@ -30,10 +30,21 @@ exports.PLATFORMS = {
 }
 
 exports.startExecution = function(){
-    FacebookAggregator.aggregateData();
-    //TwitterAggregator.aggregateData();
+    var $that = this;
+    $that.extractData();
+
+    setInterval(function(){
+        $that.extractData();
+    }, config.app.frequency * 1000);
+}
+
+exports.extractData = function(){
+    logger.log('info', 'asdf');
+    //FacebookAggregator.aggregateData();
+    //    //TwitterAggregator.aggregateData();
     //InstagramAggregator.aggregateData();
-    //YoutubeAggregator.aggregateData();
+    //    //YoutubeAggregator.aggregateData();
+
 }
 
 exports.gatherSearchCriteria = function(platform, callback){

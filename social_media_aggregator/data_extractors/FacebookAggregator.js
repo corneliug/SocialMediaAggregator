@@ -31,7 +31,7 @@ exports.gatherSearchCriteria = function(callback){
         }
     }
 
-    logger.log('info',"Gathered search criteria for Facebook...");
+    logger.log('debug',"Gathered search criteria for Facebook...");
     return callback;
 }
 
@@ -97,7 +97,7 @@ exports.extractData = function(){
     var $that = this;
 
     $that.ensureAuthenticated(function(){
-        logger.log('info',"Extracting data from Facebook...");
+        logger.log('debug',"Extracting data from Facebook...");
         var asyncTasks = [];
 
         searchCriteria.profiles.forEach(function(profile){
@@ -116,7 +116,7 @@ exports.extractData = function(){
 }
 
 exports.extractProfilePosts = function(profile, callback){
-    logger.log('info',"Extracting data from Facebook profile " + profile);
+    logger.log('debug',"Extracting data from Facebook profile %s", profile);
 
     var $that = this;
 
@@ -171,7 +171,7 @@ exports.extractPostsInfo = function(profile, lastPostTime, callback){
             }
 
             if(res!=undefined && res.data!=undefined && res.data.length!=0){
-                logger.log('info', 'extracted %s new posts from facebook profile %s', res.data.length, profile);
+                logger.log('info', 'Extracted %s new posts from facebook profile %s', res.data.length, profile);
                 for(var i in res.data){
                     var entry = res.data[i];
 
@@ -352,18 +352,18 @@ exports.handleError = function(errCode, errMessage, nextAction){
 
         // OAuthException
         case 191: {
-            logger.log('info',"Error " + errCode + " occurred: " + errMessage);
+            logger.log('info',"Error %s occurred: %s",errCode, errMessage);
             return ;
         }
 
         // Bad search key
         case 803: {
-            logger.log('info',errMessage);
+            logger.log('info', errMessage);
             return ;
         }
 
         default: {
-            logger.log('info',"Failed to handle error " + errCode + ": " + errMessage);
+            logger.log('info',"Failed to handle error %s: %s", errCode, errMessage);
         }
     }
 }
@@ -373,7 +373,7 @@ var $that = this;
 
 exports.errorHandlers = {
     handleExpiredToken: function(errCode, nextAction){
-        logger.log('info',errCode + ": handling expired access_token");
+        logger.log('info',"%s: handling expired access_token", errCode);
         $that.authenticate(nextAction);
     }
 }
