@@ -22,8 +22,9 @@ exports.aggregateData = function() {
 
 exports.authenticate = function(callback){
     var encodedAuth = 'Basic ' + btoa(config.apps.twitter.key + ":" + config.apps.twitter.secret);
+
     var formData = {
-        grant_type: 'client_config'
+        grant_type: 'client_credentials'
     }
 
     request({
@@ -38,11 +39,13 @@ exports.authenticate = function(callback){
         body = JSON.parse(body);
         session.access_token = 'Bearer ' + body.access_token;
 
+        logger.log('debug',"Authentication to Twitter was successful!");
         return callback();
     });
 }
 
 exports.extractData = function(){
+    logger.log('debug','Extracting data from Twitter...');
     var $that = this;
     var profilesTasks = [];
     var tagsTasks = [];
@@ -50,8 +53,13 @@ exports.extractData = function(){
     searchCriteria.profiles.forEach(function(profile){
         profilesTasks.push(function(callback){
             $that.getLastPostId('@' + profile, function(lastPostId){
+                logger.log('debug','Extracting data from Twitter profile %s', profile);
                 $that.extractProfilePosts(profile, lastPostId, function(posts){
-                    $that.saveProfilePosts(profile, posts, callback);
+                    if(posts!=undefined){
+                        $that.saveProfilePosts(profile, posts, callback);
+                    } else {
+                        callback();
+                    }
                 });
             });
         });
@@ -61,7 +69,11 @@ exports.extractData = function(){
         tagsTasks.push(function(callback){
             $that.getLastPostId('#' + tag, function(lastPostId){
                 $that.extractTagPosts(tag, lastPostId, function(posts){
-                    $that.saveTagsPosts(tag, posts, callback);
+                    if(posts!=undefined){
+                        $that.saveTagsPosts(tag, posts, callback);
+                    } else {
+                        callback();
+                    }
                 });
             });
         });
@@ -81,11 +93,11 @@ exports.getLastPostId = function(match, callback){
 }
 
 exports.extractTagPosts = function(tag, lastPostId, callback){
-    console.log("Extracting data from Twitter tag " + tag);
+    logger.log('debug', "Extracting data from Twitter tag %s", tag);
 
     var url = 'https://api.twitter.com/1.1/search/tweets.json?q=%23' + tag;
-    url += lastPostId!=undefined ? "&since_id=" + lastPostId : "&count=" + config.app.frequency;
-    url += "&result_type=recent";
+    url += lastPostId!=undefined ? "&since_id=" + lastPostId : "";
+    url += "&count=" + config.app.postsLimit + "&result_type=recent";
 
     request({
         url: url,
@@ -96,15 +108,16 @@ exports.extractTagPosts = function(tag, lastPostId, callback){
     }, function(error, response, body) {
         body = JSON.parse(body);
 
-        return callback(body.statuses);
+        return body.statuses!=undefined && body.statuses.length!=0 ? callback(body.statuses) : callback(undefined);
     });
 }
 
 exports.extractProfilePosts = function(profile, lastPostId, callback){
-    console.log("Extracting data from Twitter profile " + profile);
+    logger.log('debug',  "Extracting data from Twitter profile %s", profile);
 
     var url = 'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=' + profile;
-    url += lastPostId!=undefined ? "&since_id=" + lastPostId : "&count=" + config.app.frequency;
+    url += lastPostId!=undefined ? "&since_id=" + lastPostId : "";
+    url += "&count=" + config.app.postsLimit;
 
     request({
         url: url,
@@ -114,13 +127,30 @@ exports.extractProfilePosts = function(profile, lastPostId, callback){
         }
     }, function(error, response, body) {
         body = JSON.parse(body);
+        var hasError = false;
 
-        return callback(body);
+        // handle no results found
+        if(body.errors!=undefined && body.errors.length!=undefined){
+            for(var i in body.errors){
+                var error = body.errors[i];
+
+                if(error.code == 34){
+                    hasError = true;
+                    break;
+                }
+            }
+        }
+
+        return hasError ? callback(undefined) : callback(body);
     });
 }
 
 exports.saveProfilePosts = function(profile, posts, callback){
     var postsTasks = [];
+
+    if(posts.length){
+        logger.log('info','Extracted %s new posts from Twitter profile %s', posts.length, profile);
+    }
 
     posts.forEach(function(postInfo){
         postsTasks.push(function(callback){
@@ -129,6 +159,7 @@ exports.saveProfilePosts = function(profile, posts, callback){
 
             post.id = postInfo.id_str;
             post.date = new Date(postInfo.created_at);
+            post.date_extracted = new Date();
             post.service = 'twitter';
             post.account = profile;
             post.match = '@' + profile;
@@ -150,6 +181,10 @@ exports.saveProfilePosts = function(profile, posts, callback){
 exports.saveTagsPosts = function(tag, posts, callback){
     var tagsTasks = [];
 
+    if(posts.length){
+        logger.log('info','Extracted %s new posts from Twitter tag %s', posts.length, tag);
+    }
+
     posts.forEach(function(postInfo){
         tagsTasks.push(function(callback){
 
@@ -158,6 +193,7 @@ exports.saveTagsPosts = function(tag, posts, callback){
 
                 post.id = postInfo.id_str;
                 post.date = new Date(postInfo.created_at);
+                post.date_extracted = new Date();
                 post.service = 'twitter';
                 post.match = '#' + tag;
                 post.text = postInfo.text;

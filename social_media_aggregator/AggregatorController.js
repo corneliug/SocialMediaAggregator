@@ -39,11 +39,11 @@ exports.startExecution = function(){
 }
 
 exports.extractData = function(){
-    logger.log('info', 'asdf');
-    //FacebookAggregator.aggregateData();
-    //    //TwitterAggregator.aggregateData();
-    //InstagramAggregator.aggregateData();
-    //    //YoutubeAggregator.aggregateData();
+    logger.log('info', 'Running data aggregators');
+    FacebookAggregator.aggregateData();
+    TwitterAggregator.aggregateData();
+    InstagramAggregator.aggregateData();
+    YoutubeAggregator.aggregateData();
 
 }
 
@@ -65,7 +65,7 @@ exports.gatherSearchCriteria = function(platform, callback){
         }
     }
 
-    console.log("Gathered search criteria for " + platform.NAME + " ...");
+    logger.log('debug', 'Gathered search criteria for %s', platform.NAME);
     return callback(searchCriteria);
 }
 

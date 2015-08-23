@@ -22,7 +22,7 @@ exports.aggregateData = function() {
 }
 
 exports.ensureAuthenticated = function(callback){
-    return sessions!=undefined && sessions.instagram!=undefined ? callback(true) : callback(false);
+    return instagram_token!=undefined ? callback(true) : callback(false);
 }
 
 exports.extractData = function(){
@@ -32,13 +32,19 @@ exports.extractData = function(){
 
     searchCriteria.profiles.forEach(function(profile){
         profilesTasks.push(function(callback){
+            logger.log('debug', 'Extracting data from Instagram profile %s', profile);
 
             $that.getProfileId(profile, function(profileid){
-                $that.getLastPostId('@' + profile, function(lastPostId){
-                    $that.extractProfilePosts(profileid, lastPostId, function(posts){
-                        $that.savePosts('@' + profile, posts, callback);
+                if(profileid!=undefined){
+                    $that.getLastPostId('@' + profile, function(lastPostId){
+                        $that.extractProfilePosts(profileid, lastPostId, function(posts){
+                            logger.log('info', 'Extracted %s new posts from Instagram profile %s', posts.length, profile);
+                            $that.savePosts('@' + profile, posts, callback);
+                        });
                     });
-                });
+                } else {
+                    callback();
+                }
             });
 
         });
@@ -48,7 +54,12 @@ exports.extractData = function(){
         tagsTasks.push(function(callback){
             $that.getLastPostId('#' + tag, function(lastPostId){
                 $that.extractTagPosts(tag, lastPostId, function(posts){
-                    $that.savePosts('#' + tag, posts, callback);
+                    if(posts!=undefined){
+                        logger.log('info', 'Extracted %s new posts from Instagram tag %s', posts.length, tag);
+                        $that.savePosts('#' + tag, posts, callback);
+                    } else {
+                        callback();
+                    }
                 });
             });
         });
@@ -62,14 +73,13 @@ exports.extractData = function(){
 }
 
 exports.getProfileId = function(profile, callback){
-    logger.log('info', 'Extracting data from Instagram profile %s', profile);
     request({
-        url: 'https://api.instagram.com/v1/users/search?q=' + profile + '&access_token=' + sessions.instagram,
+        url: 'https://api.instagram.com/v1/users/search?q=' + profile + '&access_token=' + instagram_token,
         method: 'GET'
     }, function(error, response, body) {
         body = JSON.parse(body);
 
-        return callback(body.data[0].id);
+        return body.data!=undefined && body.data.length!=0 ? callback(body.data[0].id) : callback(undefined);
     });
 }
 
@@ -80,8 +90,9 @@ exports.getLastPostId = function(match, callback){
 }
 
 exports.extractProfilePosts = function(profileid, lastPostId, callback){
-    var url = 'https://api.instagram.com/v1/users/' + profileid + '/media/recent/?access_token=' + sessions.instagram
-    url += lastPostId!=undefined ? "&min_id=" + lastPostId : "&count=" + config.app.frequency;
+    var url = 'https://api.instagram.com/v1/users/' + profileid + '/media/recent/?access_token=' + instagram_token
+    url += lastPostId!=undefined ? "&min_id=" + lastPostId : "";
+    url += "&count=" + config.app.postsLimit;
 
     request({
         url: url,
@@ -89,15 +100,15 @@ exports.extractProfilePosts = function(profileid, lastPostId, callback){
     }, function(error, response, body) {
         body = JSON.parse(body);
 
-        logger.log('info', 'Extracted %s new posts from Instagram profile %s', body.data.length, profileid);
         return callback(body.data);
     });
 }
 
 exports.extractTagPosts = function(tag, lastPostId, callback){
-    logger.log('info', 'Extracting data from Instagram tag %s', tag);
-    var url = 'https://api.instagram.com/v1/tags/' + tag + '/media/recent/?access_token=' + sessions.instagram
-    url += lastPostId!=undefined ? "&min_id=" + lastPostId : "&count=" + config.app.frequency;
+    logger.log('debug', 'Extracting data from Instagram tag %s', tag);
+    var url = 'https://api.instagram.com/v1/tags/' + tag + '/media/recent/?access_token=' + instagram_token
+    url += lastPostId!=undefined ? "&min_id=" + lastPostId : "";
+    url += "&count=" + config.app.postsLimit;
 
     request({
         url: url,
@@ -105,8 +116,7 @@ exports.extractTagPosts = function(tag, lastPostId, callback){
     }, function(error, response, body) {
         body = JSON.parse(body);
 
-        logger.log('info', 'Extracted %s new posts from Instagram tag %s', body.data.length, tag);
-        return callback(body.data);
+        return body.data!=undefined && body.data.length!=0 ? callback(body.data) : callback(undefined);
     });
 }
 
@@ -119,7 +129,8 @@ exports.savePosts = function(match, posts, callback){
             var post = new Post();
 
             post.id = postInfo.id;
-            post.date = new Date(postInfo.created_time + "000");
+            post.date = new Date(postInfo.created_time * 1000);
+            post.date_extracted = new Date();
             post.service = 'instagram';
             post.account = postInfo.user.username;
             post.match = match;

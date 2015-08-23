@@ -4,6 +4,9 @@ var express = require('express'),
     InstagramAggregator = require('../social_media_aggregator/data_extractors/InstagramAggregator'),
     router = express.Router();
 
+global.instagram_token = undefined;
+
+
 router.get('/authenticate', function(req, res) {
     logger.log('debug', 'Authenticating to Instagram');
     api.use({client_id: config.apps.instagram.key,
@@ -19,7 +22,7 @@ router.get('/authcallback', function(req, res) {
         if (err) {
             console.log(err.body);
         } else {
-            sessions.instagram = result.access_token;
+            instagram_token = result.access_token;
             InstagramAggregator.aggregateData();
         }
 

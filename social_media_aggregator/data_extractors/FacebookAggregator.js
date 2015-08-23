@@ -51,7 +51,7 @@ exports.authenticate = function(callback){
         client_secret: config.apps.facebook.secret,
         grant_type: 'client_credentials'
     }, function (res) {
-        logger.log('info',"Authentication to Facebook was successful!");
+        logger.log('debug',"Authentication to Facebook was successful!");
 
         session.access_token    = res.access_token;
         session.expires         = new Date().getTime() + (res.expires || 0) * 1000;
@@ -68,7 +68,7 @@ exports.ensureAuthenticated = function(callback){
         if(sessionValid){
             return callback();
         } else {
-            logger.log('info',"Facebook session not valid");
+            logger.log('debug',"Facebook session not valid");
             $that.authenticate(function(){
                 return callback();
             });
@@ -160,8 +160,8 @@ exports.extractPostsInfo = function(profile, lastPostTime, callback){
     var $that = this;
     var url = profile + '/posts?fields=id,message,created_time,icon,link';
     url += '&access_token=' + session.access_token;
-
-    url += lastPostTime!=undefined ? "&since=" + lastPostTime : "&limit=" + config.app.postsLimit;
+    url += lastPostTime!=undefined ? "&since=" + lastPostTime : "";
+    url += "&limit=" + config.app.postsLimit;
 
     FB.api(url, function (res) {
             if(!res || res.error) {
@@ -305,6 +305,7 @@ exports.savePost = function(postInfo, callback) {
 
     post.id = postInfo.id;
     post.date = new Date(postInfo.created_time);
+    post.date_extracted = new Date();
     post.service = postInfo.service;
     post.account = postInfo.profile;
     post.match = postInfo.match;

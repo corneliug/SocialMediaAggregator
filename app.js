@@ -7,7 +7,6 @@ var express = require('express'),
     InstagramRoutes = require(__dirname + '/routes/InstagramRoutes');
 
 global.config = require(__dirname + "/config/config.js");
-global.sessions = {};
 
 var app = express();
 

@@ -34,6 +34,7 @@ exports.extractSearchData = function(){
                         if(searchResults!=undefined){
                             var videosTasks = [];
 
+                            logger.log('info', 'Extracted %s new posts from Youtube search %s', searchResults.length, criteria);
                             searchResults.forEach(function(video){
                                 videosTasks.push(function(callback){
                                     $that.extractVideoInfo(video.id.videoId, function(videoInfo){
@@ -72,6 +73,7 @@ exports.extractChannelsData = function(){
                         if(playlistItems!=undefined){
                             var videosTasks = [];
 
+                            logger.log('info', 'Extracted %s new posts from Youtube channel %s', playlistItems.length, channel);
                             playlistItems.forEach(function(video){
                                 videosTasks.push(function(callback){
                                     $that.extractVideoInfo(video.contentDetails.videoId, function(videoInfo){
@@ -101,6 +103,7 @@ exports.extractChannelsData = function(){
 }
 
 exports.getChannel = function(channel, callback){
+    logger.log('debug', 'Extracting data from Youtube channel %s', channel);
     request({
         url: 'https://www.googleapis.com/youtube/v3/channels?forUsername=' + channel + '&part=contentDetails&key=' + config.apps.google.key,
         method: 'GET'
@@ -113,7 +116,7 @@ exports.getChannel = function(channel, callback){
 
 exports.getPlaylistItems = function(playlistId, callback){
     request({
-        url: 'https://www.googleapis.com/youtube/v3/playlistItems?maxResults=' + config.app.frequency + '&part=contentDetails&playlistId=' + playlistId + '&key=' + config.apps.google.key,
+        url: 'https://www.googleapis.com/youtube/v3/playlistItems?maxResults=' + config.app.postsLimit + '&part=contentDetails&playlistId=' + playlistId + '&key=' + config.apps.google.key,
         method: 'GET'
     }, function(error, response, body) {
         body = JSON.parse(body);
@@ -144,8 +147,10 @@ exports.getLastPostTime = function(match, callback){
 }
 
 exports.getSearchResults = function(searchCriteria, lastPostTime, callback){
+    logger.log('debug', 'Extracting data from Youtube search %s', searchCriteria);
     var url = 'https://www.googleapis.com/youtube/v3/search?part=id,snippet&q=' + searchCriteria + '&type=video&key=' + config.apps.google.key;
-    url += lastPostTime!=undefined ? "&publishedAfter=" + lastPostTime : "&maxResults=" + config.app.frequency;
+    url += lastPostTime!=undefined ? "&publishedAfter=" + lastPostTime : "";
+    url += "&maxResults=" + config.app.postsLimit;
 
     request({
         url: url,
@@ -164,6 +169,7 @@ exports.savePost = function(videoInfo, callback){
 
     post.id = videoInfo.id;
     post.date = new Date(videoInfo.snippet.publishedAt);
+    post.date_extracted = new Date();
     post.service = 'youtube';
     post.match = '@' + videoInfo.snippet.channelTitle;
     post.text = videoInfo.snippet.title;

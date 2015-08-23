@@ -8,6 +8,7 @@ ObjectId = Schema.ObjectId;
 Post = new Schema({
     id: {type: String, unique : true, required : true, dropDups: true},
     date: Date,
+    date_extracted: Date,
     service: String,
     account: String,
     match: String,
