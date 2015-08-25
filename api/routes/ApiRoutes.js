@@ -57,10 +57,10 @@ router.route('/accounts/delete')
     .post(function(req, res) {
         var payload = req.body;
 
-        config.accounts.twitter = removeCriteria(config.accounts.twitter, payload.accounts.twitter);
-        config.accounts.facebook = removeCriteria(config.accounts.facebook, payload.accounts.facebook);
-        config.accounts.youtube = removeCriteria(config.accounts.youtube, payload.accounts.youtube);
-        config.accounts.instagram = removeCriteria(config.accounts.instagram, payload.accounts.instagram);
+        config.accounts.twitter = removeCriteria(config.accounts.twitter, payload.accounts.twitter, 'twitter');
+        config.accounts.facebook = removeCriteria(config.accounts.facebook, payload.accounts.facebook, 'facebook');
+        config.accounts.youtube = removeCriteria(config.accounts.youtube, payload.accounts.youtube, 'youtube');
+        config.accounts.instagram = removeCriteria(config.accounts.instagram, payload.accounts.instagram, 'instagram');
 
         fs.writeFile(__dirname + "/../../config/config.js", "module.exports = " + JSON.stringify(config, null, 4), function(err) {
             if(err) {
@@ -87,13 +87,14 @@ var addCriteria = function(destination, newCriteria){
     return destination;
 }
 
-var removeCriteria = function(destination, criteria){
+exports.removeCriteria = function(destination, criteria, platform){
     if(criteria!=undefined && criteria.length!=0){
         for(var i in criteria){
             var toDelete = criteria[i];
 
             var indexToDel = destination.indexOf(toDelete);
             if(indexToDel!=-1){
+                Post.deleteByPlatformAndAccount(platform, toDelete);
                 destination.splice(indexToDel, 1);
             }
         }

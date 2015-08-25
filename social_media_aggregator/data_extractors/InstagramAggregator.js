@@ -22,7 +22,7 @@ exports.aggregateData = function() {
 }
 
 exports.ensureAuthenticated = function(callback){
-    return instagram_token!=undefined ? callback(true) : callback(false);
+    return config.apps.instagram.access_token!=undefined ? callback(true) : callback(false);
 }
 
 exports.extractData = function(){
@@ -72,7 +72,7 @@ exports.extractData = function(){
 
 exports.getProfileId = function(profile, callback){
     request({
-        url: 'https://api.instagram.com/v1/users/search?q=' + profile + '&access_token=' + instagram_token,
+        url: 'https://api.instagram.com/v1/users/search?q=' + profile + '&access_token=' + config.apps.instagram.access_token,
         method: 'GET'
     }, function(error, response, body) {
         body = JSON.parse(body);
@@ -88,7 +88,7 @@ exports.getLastPostId = function(match, callback){
 }
 
 exports.extractProfilePosts = function(profileid, lastPostId, callback){
-    var url = 'https://api.instagram.com/v1/users/' + profileid + '/media/recent/?access_token=' + instagram_token
+    var url = 'https://api.instagram.com/v1/users/' + profileid + '/media/recent/?access_token=' + config.apps.instagram.access_token
     url += lastPostId!=undefined ? "&min_id=" + lastPostId : "";
     url += "&count=" + config.app.postsLimit;
 
@@ -104,7 +104,7 @@ exports.extractProfilePosts = function(profileid, lastPostId, callback){
 
 exports.extractTagPosts = function(tag, lastPostId, callback){
     logger.log('debug', 'Extracting data from Instagram tag %s', tag);
-    var url = 'https://api.instagram.com/v1/tags/' + tag + '/media/recent/?access_token=' + instagram_token
+    var url = 'https://api.instagram.com/v1/tags/' + tag + '/media/recent/?access_token=' + config.apps.instagram.access_token
     url += lastPostId!=undefined ? "&min_id=" + lastPostId : "";
     url += "&count=" + config.app.postsLimit;
 
@@ -123,7 +123,6 @@ exports.savePosts = function(match, posts, callback){
 
     posts.forEach(function(postInfo){
         postsTasks.push(function(callback){
-
             var post = new Post();
 
             post.id = postInfo.id;

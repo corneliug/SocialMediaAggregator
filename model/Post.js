@@ -53,4 +53,13 @@ PostSchema.static('getRandom', function(criteria, callback){
     });
 });
 
+PostSchema.static('deleteByPlatformAndAccount', function(platform, account){
+    this.find({
+        service: platform,
+        match: account
+    }).exec(function (err, posts) {
+        posts.remove();
+    });
+});
+
 module.exports = mongoose.model('Post', PostSchema);

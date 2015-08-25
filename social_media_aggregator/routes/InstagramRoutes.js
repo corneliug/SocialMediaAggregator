@@ -1,11 +1,9 @@
 var express = require('express'),
     request = require('request'),
     api = require('instagram-node').instagram(),
+    fs = require('fs'),
     InstagramAggregator = require('../data_extractors/InstagramAggregator'),
     router = express.Router();
-
-global.instagram_token = undefined;
-
 
 router.get('/authenticate', function(req, res) {
     logger.log('debug', 'Authenticating to Instagram');
@@ -22,8 +20,15 @@ router.get('/authcallback', function(req, res) {
         if (err) {
             console.log(err.body);
         } else {
-            instagram_token = result.access_token;
-            InstagramAggregator.aggregateData();
+            config.apps.instagram.access_token = result.access_token;
+
+            fs.writeFile(__dirname + "/../../config/config.js", "module.exports = " + JSON.stringify(config, null, 4), function(err) {
+                if(err) {
+                    return logger.log('info', err);
+                }
+
+                InstagramAggregator.aggregateData();
+            });
         }
 
         res.send("authenticated");
