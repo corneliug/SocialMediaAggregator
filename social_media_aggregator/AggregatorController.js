@@ -40,11 +40,11 @@ exports.startExecution = function(){
 
 exports.extractData = function(){
     logger.log('info', 'Running data aggregators');
+
     FacebookAggregator.aggregateData();
     TwitterAggregator.aggregateData();
     InstagramAggregator.aggregateData();
     YoutubeAggregator.aggregateData();
-
 }
 
 exports.gatherSearchCriteria = function(platform, callback){

@@ -1,7 +1,7 @@
 var express = require('express'),
     request = require('request'),
     api = require('instagram-node').instagram(),
-    InstagramAggregator = require('../social_media_aggregator/data_extractors/InstagramAggregator'),
+    InstagramAggregator = require('../data_extractors/InstagramAggregator'),
     router = express.Router();
 
 global.instagram_token = undefined;

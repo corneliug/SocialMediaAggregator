@@ -77,9 +77,13 @@ exports.extractChannelsData = function(){
                             playlistItems.forEach(function(video){
                                 videosTasks.push(function(callback){
                                     $that.extractVideoInfo(video.contentDetails.videoId, function(videoInfo){
-                                        $that.savePost(videoInfo, function(){
+                                        if(videoInfo!=undefined){
+                                            $that.savePost(videoInfo, function(){
+                                                callback();
+                                            });
+                                        } else {
                                             callback();
-                                        });
+                                        }
                                     });
                                 });
                             });

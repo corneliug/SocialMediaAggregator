@@ -3,8 +3,10 @@ var express = require('express'),
     reqLogger = require('morgan'),
     winston = require('winston'),
     session = require('express-session'),
+    bodyParser = require('body-parser'),
     AggregatorController = require(__dirname + '/social_media_aggregator/AggregatorController'),
-    InstagramRoutes = require(__dirname + '/routes/InstagramRoutes');
+    ApiRoutes = require(__dirname + '/api/routes/ApiRoutes'),
+    InstagramRoutes = require(__dirname + '/social_media_aggregator/routes/InstagramRoutes');
 
 global.config = require(__dirname + "/config/config.js");
 
@@ -34,6 +36,9 @@ global.logger = new (winston.Logger)({
 app.use(reqLogger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ secret: 'asd13asd786youtasvasdas3a78vwe123' }));
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.json()); // for parsing application/json
+//app.use(multer()); // for parsing multipart/form-data
 
 require('./config/db');
 
@@ -42,5 +47,6 @@ app.listen(8080);
 AggregatorController.startExecution();
 
 app.use('/instagram', InstagramRoutes);
+app.use('/api', ApiRoutes);
 
 module.exports = app;

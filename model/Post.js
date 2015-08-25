@@ -1,11 +1,10 @@
-var ObjectId, Schema, Post, mongoose;
+var mongoose = require('mongoose'),
+    random = require('mongoose-simple-random'),
+    config = require('../config/config.js');
 
-mongoose = require('mongoose');
+var ObjectId = mongoose.Schema.ObjectId;
 
-Schema = mongoose.Schema;
-ObjectId = Schema.ObjectId;
-
-Post = new Schema({
+var PostSchema = new mongoose.Schema({
     id: {type: String, unique : true, required : true, dropDups: true},
     date: Date,
     date_extracted: Date,
@@ -20,7 +19,11 @@ Post = new Schema({
     collection: 'sma_posts'
 });
 
-Post.static('getLastPostTime', function(service, match, callback){
+PostSchema.plugin(random);
+var RandomPostsProvider = mongoose.model('RandomPostsProvider', PostSchema);
+
+
+PostSchema.static('getLastPostTime', function(service, match, callback){
     this.find({
         service: service,
         match: match
@@ -31,7 +34,7 @@ Post.static('getLastPostTime', function(service, match, callback){
     });
 });
 
-Post.static('getLastPostId', function(service, match, callback){
+PostSchema.static('getLastPostId', function(service, match, callback){
     this.find({
         service: service,
         match: match
@@ -42,4 +45,12 @@ Post.static('getLastPostId', function(service, match, callback){
     });
 });
 
-module.exports = mongoose.model('Post', Post);
+PostSchema.static('getRandom', function(criteria, callback){
+    RandomPostsProvider.findRandom(criteria, {}, {limit: config.app.feedLimit}, function(err, results) {
+        if (!err) {
+            callback(results);
+        }
+    });
+});
+
+module.exports = mongoose.model('Post', PostSchema);
