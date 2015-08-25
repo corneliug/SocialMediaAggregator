@@ -38,7 +38,6 @@ exports.extractData = function(){
                 if(profileid!=undefined){
                     $that.getLastPostId('@' + profile, function(lastPostId){
                         $that.extractProfilePosts(profileid, lastPostId, function(posts){
-                            logger.log('info', 'Extracted %s new posts from Instagram profile %s', posts.length, profile);
                             $that.savePosts('@' + profile, posts, callback);
                         });
                     });
@@ -55,7 +54,6 @@ exports.extractData = function(){
             $that.getLastPostId('#' + tag, function(lastPostId){
                 $that.extractTagPosts(tag, lastPostId, function(posts){
                     if(posts!=undefined){
-                        logger.log('info', 'Extracted %s new posts from Instagram tag %s', posts.length, tag);
                         $that.savePosts('#' + tag, posts, callback);
                     } else {
                         callback();

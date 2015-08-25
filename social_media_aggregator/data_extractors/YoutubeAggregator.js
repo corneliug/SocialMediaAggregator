@@ -34,7 +34,6 @@ exports.extractSearchData = function(){
                         if(searchResults!=undefined){
                             var videosTasks = [];
 
-                            logger.log('info', 'Extracted %s new posts from Youtube search %s', searchResults.length, criteria);
                             searchResults.forEach(function(video){
                                 videosTasks.push(function(callback){
                                     $that.extractVideoInfo(video.id.videoId, function(videoInfo){
@@ -73,7 +72,6 @@ exports.extractChannelsData = function(){
                         if(playlistItems!=undefined){
                             var videosTasks = [];
 
-                            logger.log('info', 'Extracted %s new posts from Youtube channel %s', playlistItems.length, channel);
                             playlistItems.forEach(function(video){
                                 videosTasks.push(function(callback){
                                     $that.extractVideoInfo(video.contentDetails.videoId, function(videoInfo){

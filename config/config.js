@@ -20,7 +20,7 @@ module.exports = {
             "secret": "ca04749b72d047dfa8e03bca7df98ec9",
             "redirectUri": "http://localhost:8080/instagram/authcallback"
         },
-        "google": {     // to be replaced 
+        "google": {     // to be replaced
             "key": "AIzaSyA7qCOvn3YgjDqeBuNvOLYqnceVfzfCND0"
         }
     },

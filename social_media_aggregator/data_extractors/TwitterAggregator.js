@@ -148,10 +148,6 @@ exports.extractProfilePosts = function(profile, lastPostId, callback){
 exports.saveProfilePosts = function(profile, posts, callback){
     var postsTasks = [];
 
-    if(posts.length){
-        logger.log('info','Extracted %s new posts from Twitter profile %s', posts.length, profile);
-    }
-
     posts.forEach(function(postInfo){
         postsTasks.push(function(callback){
 
@@ -180,10 +176,6 @@ exports.saveProfilePosts = function(profile, posts, callback){
 
 exports.saveTagsPosts = function(tag, posts, callback){
     var tagsTasks = [];
-
-    if(posts.length){
-        logger.log('info','Extracted %s new posts from Twitter tag %s', posts.length, tag);
-    }
 
     posts.forEach(function(postInfo){
         tagsTasks.push(function(callback){
