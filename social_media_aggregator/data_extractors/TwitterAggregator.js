@@ -36,6 +36,7 @@ exports.authenticate = function(callback){
         },
         formData: formData
     }, function(error, response, body) {
+        logger.log('info', 'Twitter authentication response: %s', body);
         body = JSON.parse(body);
         session.access_token = 'Bearer ' + body.access_token;
 

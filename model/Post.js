@@ -45,8 +45,8 @@ PostSchema.static('getLastPostId', function(service, match, callback){
     });
 });
 
-PostSchema.static('getRandom', function(criteria, callback){
-    RandomPostsProvider.findRandom(criteria, {}, {limit: config.app.feedLimit}, function(err, results) {
+PostSchema.static('getRandom', function(criteria, limit, callback){
+    RandomPostsProvider.findRandom(criteria, {}, {limit: limit!=undefined ? limit : config.app.feedLimit}, function(err, results) {
         if (!err) {
             callback(results);
         }

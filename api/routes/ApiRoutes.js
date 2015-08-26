@@ -2,34 +2,84 @@ var express = require('express'),
     request = require('request'),
     Post = require('../../model/Post'),
     config = require('../../config/config.js'),
+    async = require('async'),
     fs = require('fs'),
     router = express.Router();
 
 router.route('/feed')
     .get(function(req, res) {
-        Post.getRandom({}, function(posts){
-            res.json(posts);
+        var limit = req.query.limit!=undefined ? req.query.limit : undefined;
+
+        var filterOpts = [
+                {service: 'twitter'},
+                {service: 'facebook'},
+                {service: 'instagram'},
+                {service: 'youtube'}
+            ];
+
+        var asyncTasks = [];
+        var postsList = [];
+
+        filterOpts.forEach(function(criteria){
+            asyncTasks.push(function(callback){
+                Post.getRandom(criteria, limit/4, function(posts){
+                    postsList.push.apply(postsList, posts);
+                    callback();
+                });
+            });
         });
 
+        async.parallel(asyncTasks, function(){
+            res.json(postsList);
+        });
     })
     .post(function(req, res) {
         var payload = req.body;
-        var filterOpts = {$or:
-            [
+        var filterOpts = [
                 {service: 'twitter', match: { $in: []}},
                 {service: 'facebook', match: { $in: []}},
                 {service: 'instagram', match: { $in: []}},
                 {service: 'youtube', match: { $in: []}}
-            ]
-        };
+            ];
 
-        filterOpts.$or[0].match.$in = payload.accounts!=undefined && payload.accounts.twitter!=undefined && payload.accounts.twitter.length!=0 ? payload.accounts.twitter : [];
-        filterOpts.$or[1].match.$in = payload.accounts!=undefined && payload.accounts.facebook!=undefined && payload.accounts.facebook.length!=0 ? payload.accounts.facebook : [];
-        filterOpts.$or[2].match.$in = payload.accounts!=undefined && payload.accounts.instagram!=undefined && payload.accounts.instagram.length!=0 ? payload.accounts.instagram : [];
-        filterOpts.$or[3].match.$in = payload.accounts!=undefined && payload.accounts.youtube!=undefined && payload.accounts.youtube.length!=0 ? payload.accounts.youtube : [];
+        var criteriaCount = 0;
 
-        Post.getRandom(filterOpts, function(posts){
-            res.json(posts);
+        if(payload.accounts!=undefined && payload.accounts.twitter!=undefined && payload.accounts.twitter.length!=0){
+            filterOpts[0].match.$in = payload.accounts.twitter;
+            ++criteriaCount;
+        }
+
+        if(payload.accounts!=undefined && payload.accounts.facebook!=undefined && payload.accounts.facebook.length!=0){
+            filterOpts[1].match.$in = payload.accounts.facebook;
+            ++criteriaCount;
+        }
+
+        if(payload.accounts!=undefined && payload.accounts.instagram!=undefined && payload.accounts.instagram.length!=0){
+            filterOpts[2].match.$in = payload.accounts.instagram;
+            ++criteriaCount;
+        }
+
+        if(payload.accounts!=undefined && payload.accounts.youtube!=undefined && payload.accounts.youtube.length!=0){
+            filterOpts[3].match.$in = payload.accounts.youtube;
+            ++criteriaCount;
+        }
+
+        var limit = req.query.limit!=undefined ? req.query.limit : undefined;
+
+        var asyncTasks = [];
+        var postsList = [];
+
+        filterOpts.forEach(function(criteria){
+            asyncTasks.push(function(callback){
+                Post.getRandom(criteria, limit/criteriaCount, function(posts){
+                    postsList.push.apply(postsList, posts);
+                    callback();
+                });
+            });
+        });
+
+        async.parallel(asyncTasks, function(){
+            res.json(postsList);
         });
     });
 
