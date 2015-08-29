@@ -1,4 +1,6 @@
-Social platforms aggregator
+Social platforms data aggregator
+
+The application extracts data from 4 platforms (Facebook, Twitter, Instagram, Youtube), by profile or tag/search terms and then exposes the data through an REST API.
 
 A. Installation steps:
 
@@ -18,11 +20,11 @@ B. Social platforms limitations
 
 The social platforms have limitations to the number of requests to be accepted hourly. Those are as follows:
 
-Facebook: 600 calls/600 seconds. The application makes 2 calls to get one profile post.
-Instagram: 5000/hour. The application makes 1 call to get one post.
-Twitter: for tag posts  - 450/15 mins. The application makes 1 call to get one tag post.
+- Facebook: 600 calls/600 seconds. The application makes 2 calls to get one profile post.
+- Instagram: 5000/hour. The application makes 1 call to get one post.
+- Twitter: for tag posts  - 450/15 mins. The application makes 1 call to get one tag post.
 		 for user posts - 300/15 mins. The application makes 1 call to get one profile post.
-Youtube: 50,000,000 units/day. The application uses about 8 units to get one post. So there are aproximately 600.000 calls/day.
+- Youtube: 50,000,000 units/day. The application uses about 8 units to get one post. So there are aproximately 600.000 calls/day.
 
 C. Sample API requests/responses
 
@@ -45,7 +47,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
 curl -X POST -H "Content-Type: application/json" -d '{
    "accounts":{
       "twitter":[
-         "@cristinnaciocoiu"
+         "@johnnny_bravo"
       ]
    }
 }' 'http://localhost:8080/api/accounts/delete'
@@ -54,7 +56,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
 curl -X POST -H "Content-Type: application/json" -d '{
    "accounts":{
       "twitter":[
-         "@cristinnaciocoiu"
+         "@johnnny_bravo"
       ]
    }
 }' 'http://localhost:8080/api/accounts/add'
