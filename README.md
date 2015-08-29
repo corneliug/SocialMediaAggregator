@@ -1,22 +1,23 @@
 Social platforms data aggregator
+==============================
 
 The application extracts data from 4 platforms (Facebook, Twitter, Instagram, Youtube), by profile or tag/search terms and then exposes the data through an REST API.
 
-A. Installation steps:
+## Installation steps:
 
-1) Clone app
-2) Update config file, modifying db and instagram credentials, and youtube API access token(which you get from Google developer console)
+1. Clone app
+2. Update config file, modifying db and instagram credentials, and youtube API access token(which you get from Google developer console)
    Additionally, in the config file the following params can be modified:
    - frequency: the frequency of running platform data aggregators (in seconds)
    - postsLimit: max number of recent records to be fetched from each platform per request
    - feedLimit: max number of records to be returned by the API on each call
    - logging_level: logging level inside app. Possible values: debug, info.
    
-3) Run "npm install", in order to install application's dependencies
-4) Run the application with "node app.js"
-5) Authenticate the app with Instagram by opening a browser on the url: http://localhost:8080/instagram/authenticate. This step must be followed just once, as the access token is saved in the config file and reused after this.
+3. Run "npm install", in order to install application's dependencies
+4. Run the application with "node app.js"
+5. Authenticate the app with Instagram by opening a browser on the url: http://localhost:8080/instagram/authenticate. This step must be followed just once, as the access token is saved in the config file and reused after this.
 
-B. Social platforms limitations
+## Social platforms limitations
 
 The social platforms have limitations to the number of requests to be accepted hourly. Those are as follows:
 
@@ -26,12 +27,15 @@ The social platforms have limitations to the number of requests to be accepted h
 		 for user posts - 300/15 mins. The application makes 1 call to get one profile post.
 - Youtube: 50,000,000 units/day. The application uses about 8 units to get one post. So there are aproximately 600.000 calls/day.
 
-C. Sample API requests/responses
+## Sample API requests/responses
 
-1. Get feed
+- Get feed
+```sh
 curl -X GET -H "Content-Type: application/json" 'http://localhost:8080/api/feed'
+```
 
-2. Get feed with criteria
+- Get feed with criteria
+```sh
 curl -X POST -H "Content-Type: application/json" -d '{
    "accounts":{
       "twitter":[
@@ -42,8 +46,10 @@ curl -X POST -H "Content-Type: application/json" -d '{
       ]
    }
 }' 'http://localhost:8080/api/feed'
+```
 
-3. Delete criteria
+- Delete criteria
+```ssh
 curl -X POST -H "Content-Type: application/json" -d '{
    "accounts":{
       "twitter":[
@@ -51,8 +57,10 @@ curl -X POST -H "Content-Type: application/json" -d '{
       ]
    }
 }' 'http://localhost:8080/api/accounts/delete'
+```
 
-4. Add criteria
+- Add criteria
+```ssh
 curl -X POST -H "Content-Type: application/json" -d '{
    "accounts":{
       "twitter":[
@@ -60,10 +68,11 @@ curl -X POST -H "Content-Type: application/json" -d '{
       ]
    }
 }' 'http://localhost:8080/api/accounts/add'
-
+```
 
 Response sample:
 
+```json
 [
   {
     "_id": "55dcb3aa89981e102ae35540",
@@ -94,3 +103,4 @@ Response sample:
     "__v": 0
   }
 ]
+```
