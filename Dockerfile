@@ -7,4 +7,4 @@ FROM mhart/alpine-node:0.12
 
 EXPOSE 8080
 
-CMD [ "/src/node", "app.js" ]
+CMD [ "node", "/src/app.js" ]
