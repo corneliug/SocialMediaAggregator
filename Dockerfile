@@ -2,7 +2,8 @@ FROM mhart/alpine-node:0.12
 
 # copy app and install deps
 
-RUN npm install -g forever && npm install
+RUN npm install -g forever
+RUN cd /src/ && npm install
 
 EXPOSE 8080
 

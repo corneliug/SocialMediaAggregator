@@ -12,7 +12,6 @@ var CRITERIA_TYPE = {
     PROFILE : '@'
 }
 
-
 exports.startExecution = function(){
     var $that = this;
     $that.extractData();
