@@ -4,7 +4,6 @@ var express = require('express'),
     api = require('instagram-node').instagram(),
     AggregatorController = require('../AggregatorController'),
     Post = require('../../model/Post'),
-    instagramConfig = require("../../config/instagram-config.js"),
     fs = require('fs');
 
 var searchCriteria = {};
@@ -26,17 +25,18 @@ exports.aggregateData = function(userName, agency) {
 }
 
 exports.ensureAuthenticated = function(callback){
-    if(instagramConfig.access_token != undefined ) {
+    if(config.apps.instagram.access_token) {
         return callback(true);
     }
     else {
-        fs.readFile(__dirname + '/../../config/instagram-config.js', function (err, data) {
+        fs.readFile(__dirname + '/../../config/instagram-config.js', 'utf8', function (err, data) {
             if(err) {
                 console.log(err);
                 return callback(false);
             }
             console.log(data);
-            instagramConfig.access_token = data.access_token;
+            data = JSON.parse(data);
+            config.apps.instagram.access_token = data.access_token;
             return callback(true);
         });
     }
@@ -88,7 +88,7 @@ exports.extractData = function(userName, agencyName, criteria){
 
 exports.getProfileId = function(profile, callback){
     request({
-        url: 'https://api.instagram.com/v1/users/search?q=' + profile + '&access_token=' + instagramConfig.access_token,
+        url: 'https://api.instagram.com/v1/users/search?q=' + profile + '&access_token=' + config.apps.instagram.access_token,
         method: 'GET'
     }, function(error, response, body) {
         body = JSON.parse(body);
@@ -105,7 +105,7 @@ exports.getLastPostId = function(match, callback){
 }
 
 exports.extractProfilePosts = function(profileid, lastPostId, callback){
-    var url = 'https://api.instagram.com/v1/users/' + profileid + '/media/recent/?access_token=' + instagramConfig.access_token
+    var url = 'https://api.instagram.com/v1/users/' + profileid + '/media/recent/?access_token=' + config.apps.instagram.access_token
     url += lastPostId!=undefined ? "&min_id=" + lastPostId : "";
     url += "&count=" + config.app.postsLimit;
 
@@ -123,7 +123,7 @@ exports.extractProfilePosts = function(profileid, lastPostId, callback){
 
 exports.extractTagPosts = function(tag, lastPostId, callback){
     logger.log('debug', 'Extracting data from Instagram tag %s', tag);
-    var url = 'https://api.instagram.com/v1/tags/' + tag + '/media/recent/?access_token=' + instagramConfig.access_token
+    var url = 'https://api.instagram.com/v1/tags/' + tag + '/media/recent/?access_token=' + config.apps.instagram.access_token
     url += lastPostId!=undefined ? "&min_id=" + lastPostId : "";
     url += "&count=" + config.app.postsLimit;
 
