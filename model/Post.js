@@ -10,11 +10,14 @@ var PostSchema = new mongoose.Schema({
     date_extracted: Date,
     service: String,
     account: String,
+    userName: String,
+    agencyName: String,
     match: String,
     icon: String,
     url: String,
     text: String,
-    likes: Number
+    likes: Number,
+    agg_user: String
 }, {
     collection: 'sma_posts'
 });
@@ -45,6 +48,15 @@ PostSchema.static('getLastPostId', function(service, match, callback){
     });
 });
 
+PostSchema.static('getLatest', function(criteria, limit, callback){
+    limit =  limit!=undefined ? limit : config.app.feedLimit;
+    this.find(criteria).sort({
+        date: -1
+    }).limit(limit).exec(function (err, posts) {
+        return posts.length!=0 ? callback(posts) : callback(undefined);
+    });
+});
+
 PostSchema.static('getRandom', function(criteria, limit, callback){
     RandomPostsProvider.findRandom(criteria, {}, {limit: limit!=undefined ? limit : config.app.feedLimit}, function(err, results) {
         if (!err) {
@@ -53,13 +65,25 @@ PostSchema.static('getRandom', function(criteria, limit, callback){
     });
 });
 
-PostSchema.static('deleteByPlatformAndAccount', function(platform, account){
+PostSchema.static('deleteByUser', function(userName){
     this.find({
+        userName: userName
+    }).remove().exec();
+});
+
+PostSchema.static('deleteByUserAndAgency', function(userName, agencyName){
+    this.find({
+        userName: userName,
+        agencyName: agencyName
+    }).remove().exec();
+});
+
+PostSchema.static('deleteByUserAndPlatformAndAccount', function(userName, platform, account){
+    this.find({
+        userName: userName,
         service: platform,
         match: account
-    }).exec(function (err, posts) {
-        posts.remove();
-    });
+    }).remove().exec();
 });
 
 module.exports = mongoose.model('Post', PostSchema);

@@ -7,37 +7,37 @@ var express = require('express'),
 var session = {};
 var searchCriteria = {};
 
-exports.aggregateData = function() {
+exports.aggregateData = function(userName, agency) {
     var $that = this;
 
-    AggregatorController.gatherSearchCriteria(AggregatorController.PLATFORMS.YOUTUBE, function(criteria){
+    AggregatorController.gatherSearchCriteria(userName, agency, 'youtube', function(criteria){
         searchCriteria = criteria;
 
-        $that.extractData();
+        $that.extractData(userName, agency.name, criteria);
     });
 }
 
-exports.extractData = function(){
-    this.extractChannelsData();
-    this.extractSearchData();
+exports.extractData = function(userName, agencyName, criteria){
+    this.extractChannelsData(userName, agencyName, criteria);
+    this.extractSearchData(userName, agencyName, criteria);
 }
 
-exports.extractSearchData = function(){
+exports.extractSearchData = function(userName, agencyName, criteria){
     var $that = this;
     var searchTasks = [];
 
-    searchCriteria.tags.forEach(function(search){
+    criteria.tags.forEach(function(search){
         searchTasks.push(function(callback){
             $that.encodeSearchCriteria(search, function(criteria){
                 $that.getLastPostTime(criteria, function(lastPostTime){
-                    $that.getSearchResults(criteria, lastPostTime, function(searchResults){
+                    $that.getSearchResults(userName, agencyName, criteria, lastPostTime, function(searchResults){
                         if(searchResults!=undefined){
                             var videosTasks = [];
 
                             searchResults.forEach(function(video){
                                 videosTasks.push(function(callback){
                                     $that.extractVideoInfo(video.id.videoId, function(videoInfo){
-                                        $that.savePost(videoInfo, function(){
+                                        $that.savePost(userName, agencyName, videoInfo, function(){
                                             callback();
                                         });
                                     });
@@ -60,11 +60,11 @@ exports.extractSearchData = function(){
     });
 }
 
-exports.extractChannelsData = function(){
+exports.extractChannelsData = function(userName, agencyName, criteria){
     var $that = this;
     var channelTasks = [];
 
-    searchCriteria.profiles.forEach(function(channel){
+    criteria.profiles.forEach(function(channel){
         channelTasks.push(function(callback){
             $that.getChannel(channel, function(channelsResult){
                 if(channelsResult!=undefined){
@@ -76,7 +76,7 @@ exports.extractChannelsData = function(){
                                 videosTasks.push(function(callback){
                                     $that.extractVideoInfo(video.contentDetails.videoId, function(videoInfo){
                                         if(videoInfo!=undefined){
-                                            $that.savePost(videoInfo, function(){
+                                            $that.savePost(userName, agencyName, videoInfo, function(){
                                                 callback();
                                             });
                                         } else {
@@ -164,11 +164,13 @@ exports.getSearchResults = function(searchCriteria, lastPostTime, callback){
     });
 }
 
-exports.savePost = function(videoInfo, callback){
+exports.savePost = function(userName, agencyName, videoInfo, callback){
     var post = new Post();
 
     videoInfo = videoInfo[0];
 
+    post.userName = userName;
+    post.agencyName = agencyName;
     post.id = videoInfo.id;
     post.date = new Date(videoInfo.snippet.publishedAt);
     post.date_extracted = new Date();

@@ -1,0 +1,59 @@
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:29:58.135Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:30:28.769Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:32:42.400Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:33:21.870Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:34:21.567Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:35:46.084Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:36:26.405Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:37:21.606Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:38:44.686Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:39:47.490Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:40:34.290Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:41:23.219Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:42:54.486Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:43:02.943Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:44:19.720Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-15T22:44:20.257Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:50:19.672Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-15T22:50:20.139Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:50:52.111Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-15T22:50:52.658Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:53:46.421Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-15T22:53:46.871Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:54:10.556Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-15T22:54:11.091Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:54:29.505Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-15T22:54:29.981Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:56:34.348Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-15T22:56:34.823Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:58:28.032Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-15T22:58:28.525Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-15T22:59:08.472Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-15T22:59:08.889Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T18:19:54.016Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-16T18:19:54.349Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T18:43:15.781Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-16T18:43:16.121Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T18:46:38.583Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-16T18:46:38.908Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T18:52:50.060Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-16T18:52:50.439Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T18:54:06.053Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-16T18:54:06.545Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T18:55:33.485Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T18:57:28.811Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T18:58:55.139Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:00:27.580Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:01:12.158Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:05:09.631Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:05:34.574Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:06:07.041Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:06:13.957Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:07:49.269Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:10:46.445Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:11:25.390Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:13:42.620Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:14:19.918Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:15:41.150Z"}
+{"level":"info","message":"Running data aggregators","timestamp":"2015-09-16T19:41:31.694Z"}
+{"level":"info","message":"Twitter authentication response: {\"token_type\":\"bearer\",\"access_token\":\"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN\"}","timestamp":"2015-09-16T19:41:32.008Z"}

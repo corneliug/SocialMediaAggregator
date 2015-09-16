@@ -3,18 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "express": "~4.13.1",
-    "request": ">=2.60.0",
     "async": ">=1.4.2",
-    "btoa": ">=1.1.2",
-    "morgan": "~1.6.1",
-    "winston": ">=1.0.1",
-    "mongoose": ">=4.1.2",
-    "mongoose-simple-random": ">=0.3.2",
     "body-parser": ">=1.13.3",
+    "btoa": ">=1.1.2",
+    "express": "~4.13.1",
     "express-session": ">= 1.6.1",
     "fb": ">= 0.0.0",
+    "instagram-node": ">= 0.0.0",
+    "lodash": "~3.10.1",
+    "mongoose": ">=4.1.2",
+    "mongoose-simple-random": ">=0.3.2",
+    "morgan": "~1.6.1",
+    "request": ">=2.60.0",
     "twitter": ">= 1.2.5",
-    "instagram-node": ">= 0.0.0"
+    "winston": ">=1.0.1"
   }
 }

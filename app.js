@@ -6,6 +6,7 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     AggregatorController = require(__dirname + '/social_media_aggregator/AggregatorController'),
     ApiRoutes = require(__dirname + '/api/routes/ApiRoutes'),
+    UserRoutes = require(__dirname + '/api/routes/UserRoutes'),
     InstagramRoutes = require(__dirname + '/social_media_aggregator/routes/InstagramRoutes');
 
 global.config = require(__dirname + "/config/config.js");
@@ -35,18 +36,29 @@ global.logger = new (winston.Logger)({
 
 app.use(reqLogger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({ secret: 'asd13asd786youtasvasdas3a78vwe123' }));
+app.use(session({ 
+    secret: 'asd13asd786youtasvasdas3a78vwe123',
+    resave: true,
+    saveUninitialized: true
+}));
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(bodyParser.json()); // for parsing application/json
-//app.use(multer()); // for parsing multipart/form-data
 
 require('./config/db');
 
-app.listen(8080);
+// Test home route
+app.get('/', function(req, res) {
+    res.send("Hello");
+    AggregatorController.startExecution();
+});
 
-AggregatorController.startExecution();
+app.listen(config.port);
 
+// AggregatorController.startExecution();
+
+// Routes
 app.use('/instagram', InstagramRoutes);
 app.use('/api', ApiRoutes);
+app.use('/user', UserRoutes);
 
 module.exports = app;

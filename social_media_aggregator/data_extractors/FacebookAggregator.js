@@ -8,40 +8,17 @@ var express = require('express'),
 var session = {};
 var searchCriteria = {};
 
-var CRITERIA_TYPE = {
-    HASHTAG : '#',
-    PROFILE : '@'
-}
-
 var extractedPosts = [];
 var bufferedPages = [];
 var bufferedPagesInExec = [];
 
-exports.gatherSearchCriteria = function(callback){
-    var criteriaList = config.accounts.facebook;
-
-    for(var index in criteriaList) {
-        var criteria = criteriaList[index];
-        var criteriaType = criteria.substring(0, 1);
-
-        if(criteriaType === CRITERIA_TYPE.HASHTAG) {
-            searchCriteria.tags.push(criteria.substring(1, criteria.length));
-        } else if(criteriaType === CRITERIA_TYPE.PROFILE) {
-            searchCriteria.profiles.push(criteria.substring(1, criteria.length));
-        }
-    }
-
-    logger.log('debug',"Gathered search criteria for Facebook...");
-    return callback;
-}
-
-exports.aggregateData = function() {
+exports.aggregateData = function(userName, agency) {
     var $that = this;
 
-    AggregatorController.gatherSearchCriteria(AggregatorController.PLATFORMS.FACEBOOK, function(criteria){
+    AggregatorController.gatherSearchCriteria(userName, agency, 'facebook', function(criteria){
         searchCriteria = criteria;
 
-        $that.extractData();
+        $that.extractData(userName, agency.name, criteria);
     });
 }
 
@@ -93,7 +70,7 @@ exports.isSessionValid = function(callback){
     }
 }
 
-exports.extractData = function(){
+exports.extractData = function(userName, agencyName, criteria){
     var $that = this;
 
     $that.ensureAuthenticated(function(){
@@ -102,20 +79,20 @@ exports.extractData = function(){
 
         searchCriteria.profiles.forEach(function(profile){
             asyncTasks.push(function(callback){
-                $that.extractProfilePosts(profile, callback);
+                $that.extractProfilePosts(userName, agencyName, profile, callback);
             });
         });
 
         async.parallel(asyncTasks, function(){
             if(asyncTasks.length < config.app.postLimit) {
-                $that.extractPostsFromBufferedPages();
+                $that.extractPostsFromBufferedPages(userName, agencyName);
             }
         });
 
     })
 }
 
-exports.extractProfilePosts = function(profile, callback){
+exports.extractProfilePosts = function(userName, agencyName, profile, callback){
     logger.log('debug',"Extracting data from Facebook profile %s", profile);
 
     var $that = this;
@@ -132,7 +109,7 @@ exports.extractProfilePosts = function(profile, callback){
 
                     $that.extractPostsLikes(post, function(post){
 
-                        $that.savePost(post, callback);
+                        $that.savePost(userName, agencyName, post, callback);
 
                     });
 
@@ -193,7 +170,7 @@ exports.extractPostsInfo = function(profile, lastPostTime, callback){
     });
 }
 
-exports.extractPostsFromBufferedPages = function(){
+exports.extractPostsFromBufferedPages = function(userName, agencyName){
     var $that = this;
 
     if(bufferedPages.length!=0){
@@ -214,7 +191,7 @@ exports.extractPostsFromBufferedPages = function(){
 
                             $that.extractPostsLikes(post, function(post){
 
-                                $that.savePost(post, callback);
+                                $that.savePost(userName, agencyName, post, callback);
 
                             });
 
@@ -233,7 +210,7 @@ exports.extractPostsFromBufferedPages = function(){
         async.parallel(bufferedPagesTasks, function(){
 
             bufferedPages = [];
-            $that.extractPostsFromBufferedPages();
+            $that.extractPostsFromBufferedPages(userName, agencyName);
 
         });
     }
@@ -299,9 +276,12 @@ exports.extractPostsLikes = function(post, cb){
 }
 
 // saves the post into the db
-exports.savePost = function(postInfo, callback) {
+exports.savePost = function(userName, agencyName, postInfo, callback) {
     var post = new Post();
+    console.log(callback);
 
+    post.userName = userName;
+    post.agencyName = agencyName;
     post.id = postInfo.id;
     post.date = new Date(postInfo.created_time);
     post.date_extracted = new Date();

@@ -27,47 +27,137 @@ The social platforms have limitations to the number of requests to be accepted h
 		 for user posts - 300/15 mins. The application makes 1 call to get one profile post.
 - Youtube: 50,000,000 units/day. The application uses about 8 units to get one post. So there are aproximately 600.000 calls/day.
 
+## Mongo 
+
+There are 2 collections for this repo.  
+
+### User schema
+```json
+{
+    name: {type: String, unique : true, required : true, dropDups: true},
+    date: Date,
+    agencies: [
+      {
+          name: {type: String, required : true},
+          facebook: Array,
+          instagram: Array,
+          twitter: Array,
+          youtube: Array
+      }
+    ]
+}
+```
+
+### Post schema
+```json
+{
+    id: {type: String, unique : true, required : true, dropDups: true},
+    date: Date,
+    date_extracted: Date,
+    service: String,
+    account: String,
+    userName: String,
+    agencyName: String,
+    match: String,
+    icon: String,
+    url: String,
+    text: String,
+    likes: Number,
+    agg_user: String
+  }
+```
+
 ## Sample API requests/responses
 
-- Get feed
+
+- Create User
 ```sh
-curl -X GET -H "Content-Type: application/json" 'http://localhost:8080/api/feed'
+curl -X POST -H "Content-Type: application/json" -d '{
+    "name": "issaquah_wa",
+    "agencies": [
+      {
+        "name": "default",
+        "twitter":[
+           "@albatrossdigi"
+        ],
+        "facebook":[
+           "@DonaldTrump"
+        ],
+        "youtube": [
+          "@SenatorSanders"
+        ],
+        "instagram": [
+          "@github"
+        ]
+      }
+    ]
+}' 'http://localhost:8084/user/create'
+```
+
+- Update User
+```sh
+curl -X POST -H "Content-Type: application/json" -d '{
+    "name": "issaquah_wa",
+    "agencies": [
+      {
+        "name": "default",
+        "twitter":[
+           "@albatrossdigi",
+           "#govtech"
+        ]
+      }
+    ]
+}' 'http://localhost:8084/user/update'
+```
+
+- Remove social account + posts
+```sh
+curl -X POST -H "Content-Type: application/json" -d '{
+    "name": "issaquah_wa",
+    "agencies": [
+      {
+        "name": "default",
+        "facebook":[
+           "@cristiano"
+        ]
+      }
+    ],
+    "deleteMode": "true"
+}' 'http://localhost:8084/user/update'
+```
+
+- Delete user agency + posts
+```sh
+curl -X POST -H "Content-Type: application/json" -d '{
+    "name": "issaquah_wa",
+    "agencies": [
+      "default"
+    ]
+}' 'http://localhost:8084/user/delete'
+```
+
+- Delete user + posts
+```sh
+curl -X POST -H "Content-Type: application/json" -d '{
+    "name": "issaquah_wa"
+}' 'http://localhost:8084/user/delete'
+```
+
+- Get feed for all user agencies
+-- in form /api/:user/feed/
+```sh
+curl -X GET -H "Content-Type: application/json" 'http://localhost:8080/api/issaquah_wa/feed'
+```
+
+- Get feed for user agency
+-- in form /api/:user/feed/:agency
+```sh
+curl -X GET -H "Content-Type: application/json" 'http://localhost:8080/api/issaquah_wa/feed/default'
 ```
 
 - Get feed with criteria
 ```sh
-curl -X POST -H "Content-Type: application/json" -d '{
-   "accounts":{
-      "twitter":[
-         "#govtech"
-      ],
-      "facebook":[
-         "@cristiano"
-      ]
-   }
-}' 'http://localhost:8080/api/feed'
-```
-
-- Delete criteria
-```ssh
-curl -X POST -H "Content-Type: application/json" -d '{
-   "accounts":{
-      "twitter":[
-         "@johnnny_bravo"
-      ]
-   }
-}' 'http://localhost:8080/api/accounts/delete'
-```
-
-- Add criteria
-```ssh
-curl -X POST -H "Content-Type: application/json" -d '{
-   "accounts":{
-      "twitter":[
-         "@johnnny_bravo"
-      ]
-   }
-}' 'http://localhost:8080/api/accounts/add'
+curl -X GET -H "Content-Type: application/json" 'http://localhost:8080/api/issaquah_wa/feed/default?services[]=facebook'
 ```
 
 Response sample:
@@ -86,6 +176,8 @@ Response sample:
     "date_extracted": "2015-08-25T18:27:54.328Z",
     "date": "2015-08-25T18:27:35.000Z",
     "id": "1059541868008555947_1395949976",
+    "agencyName": "default",
+    "userName": "issaquah_wa",
     "__v": 0
   },
   {
@@ -100,6 +192,8 @@ Response sample:
     "date_extracted": "2015-08-25T18:27:54.331Z",
     "date": "2015-08-25T18:27:32.000Z",
     "id": "1059541847335622435_1513031652",
+    "agencyName": "default",
+    "userName": "issaquah_wa",
     "__v": 0
   }
 ]

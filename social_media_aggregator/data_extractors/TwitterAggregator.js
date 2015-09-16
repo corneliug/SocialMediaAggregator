@@ -8,14 +8,14 @@ var express = require('express'),
 var session = {};
 var searchCriteria = {};
 
-exports.aggregateData = function() {
+exports.aggregateData = function(userName, agency) {
     var $that = this;
 
-    AggregatorController.gatherSearchCriteria(AggregatorController.PLATFORMS.TWITTER, function(criteria){
+    AggregatorController.gatherSearchCriteria(userName, agency, 'twitter', function(criteria){
         searchCriteria = criteria;
 
         $that.authenticate(function(){
-            $that.extractData();
+            $that.extractData(userName, agency.name, criteria);
         });
     });
 }
@@ -45,7 +45,7 @@ exports.authenticate = function(callback){
     });
 }
 
-exports.extractData = function(){
+exports.extractData = function(userName, agencyName, criteria){
     logger.log('debug','Extracting data from Twitter...');
     var $that = this;
     var profilesTasks = [];
@@ -57,7 +57,7 @@ exports.extractData = function(){
                 logger.log('debug','Extracting data from Twitter profile %s', profile);
                 $that.extractProfilePosts(profile, lastPostId, function(posts){
                     if(posts!=undefined){
-                        $that.saveProfilePosts(profile, posts, callback);
+                        $that.saveProfilePosts(userName, agencyName, profile, posts, callback);
                     } else {
                         callback();
                     }
@@ -71,7 +71,7 @@ exports.extractData = function(){
             $that.getLastPostId('#' + tag, function(lastPostId){
                 $that.extractTagPosts(tag, lastPostId, function(posts){
                     if(posts!=undefined){
-                        $that.saveTagsPosts(tag, posts, callback);
+                        $that.saveTagsPosts(userName, agencyName, tag, posts, callback);
                     } else {
                         callback();
                     }
@@ -146,7 +146,7 @@ exports.extractProfilePosts = function(profile, lastPostId, callback){
     });
 }
 
-exports.saveProfilePosts = function(profile, posts, callback){
+exports.saveProfilePosts = function(userName, agencyName, profile, posts, callback){
     var postsTasks = [];
 
     posts.forEach(function(postInfo){
@@ -154,6 +154,8 @@ exports.saveProfilePosts = function(profile, posts, callback){
 
             var post = new Post();
 
+            post.userName = userName;
+            post.agencyName = agencyName;
             post.id = postInfo.id_str;
             post.date = new Date(postInfo.created_at);
             post.date_extracted = new Date();
@@ -175,7 +177,7 @@ exports.saveProfilePosts = function(profile, posts, callback){
     });
 }
 
-exports.saveTagsPosts = function(tag, posts, callback){
+exports.saveTagsPosts = function(userName, agencyName, tag, posts, callback){
     var tagsTasks = [];
 
     posts.forEach(function(postInfo){
@@ -183,7 +185,9 @@ exports.saveTagsPosts = function(tag, posts, callback){
 
             if(postInfo.retweet_count!=undefined && postInfo.retweet_count==0){
                 var post = new Post();
-
+                
+                post.userName = userName;
+                post.agencyName = agencyName;
                 post.id = postInfo.id_str;
                 post.date = new Date(postInfo.created_at);
                 post.date_extracted = new Date();
