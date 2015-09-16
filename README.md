@@ -13,9 +13,8 @@ The application extracts data from 4 platforms (Facebook, Twitter, Instagram, Yo
    - feedLimit: max number of records to be returned by the API on each call
    - logging_level: logging level inside app. Possible values: debug, info.
    
-3. Run "npm install", in order to install application's dependencies
-4. Run the application with "node app.js"
-5. Authenticate the app with Instagram by opening a browser on the url: http://localhost:8080/instagram/authenticate. This step must be followed just once, as the access token is saved in the config file and reused after this.
+3. Run docker-compose up
+4. Authenticate the app with Instagram by opening a browser on the url: http://localhost:8080/instagram/authenticate. This step must be followed just once, as the access token is saved in the config file and reused after this.
 
 ## Social platforms limitations
 
