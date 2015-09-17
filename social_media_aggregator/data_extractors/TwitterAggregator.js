@@ -3,6 +3,7 @@ var express = require('express'),
     async = require('async'),
     btoa = require('btoa'),
     AggregatorController = require('../AggregatorController'),
+    _ = require('lodash'),
     Post = require('../../model/Post');
 
 var session = {};
@@ -167,6 +168,13 @@ exports.saveProfilePosts = function(userName, agencyName, profile, posts, callba
             post.url = 'https://twitter.com/' + profile + '/status/' + postInfo.id_str;
             post.icon = postInfo.profile_image_url;
 
+            var media = _.get(postInfo, 'entities.media');
+            _.forEach(media, function(item) {
+                if(_.has(item, 'sizes.small')) {
+                    post.image = item.media_url + ':small';
+                    return false;
+                }
+            });
             post.save();
             callback();
         });
@@ -199,6 +207,14 @@ exports.saveTagsPosts = function(userName, agencyName, tag, posts, callback){
                 post.url = 'https://twitter.com/' + post.account + '/status/' + postInfo.id_str;
                 post.icon = postInfo.user.profile_image_url;
 
+                var media = _.get(postInfo, 'entities.media');
+                _.forEach(media, function(item) {
+                    if(_.has(item, 'sizes.small')) {
+                        post.image = item.media_url + ':small';
+                        return false;
+                    }
+                });
+                
                 post.save();
                 callback();
             }

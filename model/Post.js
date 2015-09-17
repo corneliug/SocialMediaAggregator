@@ -14,6 +14,7 @@ var PostSchema = new mongoose.Schema({
     agencyName: String,
     match: String,
     icon: String,
+    image: String,
     url: String,
     text: String,
     likes: Number,

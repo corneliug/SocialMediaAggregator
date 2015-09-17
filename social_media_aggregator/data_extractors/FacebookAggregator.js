@@ -135,7 +135,7 @@ exports.getLastPostTime = function(match, callback){
 // extracts id, message, creted_time, icon, link
 exports.extractPostsInfo = function(profile, lastPostTime, callback){
     var $that = this;
-    var url = profile + '/posts?fields=id,message,created_time,icon,link';
+    var url = profile + '/posts?fields=id,message,picture,full_picture,created_time,icon,link';
     url += '&access_token=' + session.access_token;
     url += lastPostTime!=undefined ? "&since=" + lastPostTime : "";
     url += "&limit=" + config.app.postsLimit;
@@ -292,6 +292,7 @@ exports.savePost = function(userName, agencyName, postInfo, callback) {
     post.url = postInfo.link;
     post.text = postInfo.message;
     post.likes = postInfo.likes;
+    post.image = postInfo.full_picture || postInfo.picture;
 
     post.save();
     callback();

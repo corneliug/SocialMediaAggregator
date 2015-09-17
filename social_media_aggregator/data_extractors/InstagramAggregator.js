@@ -4,6 +4,7 @@ var express = require('express'),
     api = require('instagram-node').instagram(),
     AggregatorController = require('../AggregatorController'),
     Post = require('../../model/Post'),
+    _ = require('lodash'),
     fs = require('fs');
 
 var searchCriteria = {};
@@ -152,6 +153,7 @@ exports.savePosts = function(userName, agencyName, match, posts, callback){
             post.service = 'instagram';
             post.account = postInfo.user.username;
             post.match = match;
+            post.image = _.get(postInfo, 'images.low_resolution.url') || _.get(postInfo, 'images.thumbnail.url');
             post.text = postInfo.caption!=null && postInfo.caption.text!=null ? postInfo.caption.text : "";
             post.likes = postInfo.likes!=undefined && postInfo.likes.count!=undefined ? postInfo.likes.count : 0;
             post.url = postInfo.link;

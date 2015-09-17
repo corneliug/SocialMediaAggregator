@@ -30,9 +30,9 @@ var getPostsFromUserAsync = function(userName, agencyName, limit, services, post
     return asyncTasks;
 };
 
-router.route('/:user/feed/:agency?')
+router.route('/:user/feed/:agency?/:limit?')
     .get(function(req, res) {
-        var limit       = req.query.limit!=undefined ? req.query.limit : 10,
+        var limit       = _.get(req, 'params.limit') || 10,
             userName    = _.get(req, 'params.user'),
             agencyName  = _.get(req, 'params.agency') || 'default',
             services    = _.get(req, 'query.services');

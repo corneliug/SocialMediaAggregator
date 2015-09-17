@@ -2,6 +2,7 @@ var express = require('express'),
     request = require('request'),
     async = require('async'),
     AggregatorController = require('../AggregatorController'),
+    _ = require('lodash'),
     Post = require('../../model/Post');
 
 var session = {};
@@ -143,8 +144,8 @@ exports.encodeSearchCriteria = function(criteria, callback){
 }
 
 exports.getLastPostTime = function(match, callback){
-    Post.getLastPostTime('youtube', match, function(lastPostId){
-        return callback(lastPostId);
+    Post.getLastPostTime('youtube', match, function(lastPostTime){
+        return callback(lastPostTime);
     });
 }
 
@@ -166,7 +167,6 @@ exports.getSearchResults = function(searchCriteria, lastPostTime, callback){
 
 exports.savePost = function(userName, agencyName, videoInfo, callback){
     var post = new Post();
-
     videoInfo = videoInfo[0];
 
     post.userName = userName;
@@ -180,7 +180,8 @@ exports.savePost = function(userName, agencyName, videoInfo, callback){
     post.likes = videoInfo.statistics.likeCount;
     post.account = videoInfo.snippet.channelTitle;
     post.url = 'https://www.youtube.com/watch?v=' + videoInfo.id;
-    post.icon = videoInfo.snippet.thumbnails.default.url;
+    post.image = _.get(videoInfo, 'snippet.thumbnails.medium.url') || _.get(videoInfo, 'snippet.thumbnails.default.url');
+    post.icon = '';
 
     post.save();
     callback();

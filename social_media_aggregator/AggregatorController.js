@@ -16,9 +16,9 @@ exports.startExecution = function(){
     var $that = this;
     $that.extractData();
 
-    // setInterval(function(){
-    //     $that.extractData();
-    // }, config.app.frequency * 1000);
+    setInterval(function(){
+        $that.extractData();
+    }, config.app.frequency * 1000);
 }
 
 var extractDataForUser = function(user) {
@@ -40,7 +40,7 @@ exports.extractData = function(user){
     // Do them all
     else {
         User.allUsers(function(err, users) {
-            console.log(users);
+            // console.log(users);
             _.forEach(users, function(user) {
                 extractDataForUser(user);
             });
