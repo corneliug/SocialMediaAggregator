@@ -1,4 +1,5 @@
 var express = require('express'),
+    cors = require('cors'),
     path = require('path'),
     reqLogger = require('morgan'),
     winston = require('winston'),
@@ -34,6 +35,9 @@ global.logger = new (winston.Logger)({
     ]
 });
 
+app.use(cors({
+    'methods': ['GET', 'POST']
+}));
 app.use(reqLogger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ 
