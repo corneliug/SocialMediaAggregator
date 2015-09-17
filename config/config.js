@@ -2,7 +2,8 @@ var _ = require('lodash');
 
 var port =  _.has(process, 'env.MONGO_PORT_27017_TCP_ADDR') ? 8080 : 8084;
 
-var externalURL = "http://localhost:" + port;
+//var externalURL = "http://localhost:" + port;
+var externalURL = "http://45.55.8.62:" + port;
 
 module.exports = {
     "port": port,
