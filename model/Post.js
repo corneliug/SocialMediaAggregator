@@ -34,6 +34,9 @@ PostSchema.static('getLastPostTime', function(service, match, callback){
     }).sort({
         date: -1
     }).exec(function (err, posts) {
+        if(match == '@goredmond') {
+            console.log(posts);
+        } 
         return posts.length!=0 ? callback(posts[0].date.getTime()) : callback(undefined);
     });
 });
