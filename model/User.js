@@ -17,6 +17,7 @@ var AgencySchema = new mongoose.Schema({
 
 var UserSchema = new mongoose.Schema({
     name: {type: String, unique : true, required : true, dropDups: true},
+    id: {type: String, unique : true, required : true, dropDups: true},
     date: Date,
     agencies: [AgencySchema]
 }, {
@@ -144,6 +145,7 @@ UserSchema.static('createUser', function(data, NewUser, callback) {
         else {
             // Create new
             NewUser.name = data.name;
+            NewUser.id = data.name;
             NewUser.date = new Date();
             NewUser.agencies = [];
             // Create a new agency for each entry
