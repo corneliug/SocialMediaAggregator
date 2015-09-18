@@ -8,6 +8,19 @@ var express = require('express'),
     _       = require('lodash'), 
     router = express.Router();
 
+router.route('/:user/info')
+    .get(function(req, res) {
+        // Check if user already exists
+        User.findUser(_.get(req, 'params.user'), function(findErr, user) {
+            if(findErr) {
+                res.status(500).json(findErr);
+            }
+            else {
+                res.json(user);
+            }
+        });
+    });
+
 // Returns array
 var getPostsFromUserAsync = function(userName, agencyName, limit, services, postsList) {
     services = services || ['facebook', 'twitter', 'instagram', 'youtube'];
