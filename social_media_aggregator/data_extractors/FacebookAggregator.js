@@ -280,6 +280,7 @@ exports.extractPostsLikes = function(post, cb){
 
 // saves the post into the db
 exports.savePost = function(userName, agencyName, postInfo, callback) {
+    console.log('saving post');
     var post = new Post();
     post.userName = userName;
     post.agencyName = agencyName;
