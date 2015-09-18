@@ -8,6 +8,20 @@ var express = require('express'),
     _       = require('lodash'), 
     router = express.Router();
 
+
+router.route('/info')
+    .get(function(req, res) {
+        // Check if user already exists
+        User.allUsers(function(findErr, users) {
+            if(findErr) {
+                res.status(500).json(findErr);
+            }
+            else {
+                res.json(users);
+            }
+        });
+    });
+
 router.route('/:user/info')
     .get(function(req, res) {
         // Check if user already exists
