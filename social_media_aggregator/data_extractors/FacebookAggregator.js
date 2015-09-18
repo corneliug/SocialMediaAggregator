@@ -145,31 +145,33 @@ exports.extractPostsInfo = function(profile, lastPostTime, callback){
     url += "&limit=" + config.app.postsLimit;
 
     FB.api(url, function (res) {
-            if(!res || res.error) {
-                $that.handleError(res.error.code, res.error.message, function(){
-                    return $that.extractPostsInfo(profile, lastPostTime, callback);
-                });
+        console.log(url);
+        console.log(res.error);
+        if(!res || res.error) {
+            $that.handleError(res.error.code, res.error.message, function(){
+                return $that.extractPostsInfo(profile, lastPostTime, callback);
+            });
+        }
+
+        if(res!=undefined && res.data!=undefined && res.data.length!=0){
+            for(var i in res.data){
+                var entry = res.data[i];
+
+                entry.service = "facebook";
+                entry.profile = profile;
+                entry.match = "@" + profile;
+
+                extractedPosts.push(entry);
             }
 
-            if(res!=undefined && res.data!=undefined && res.data.length!=0){
-                for(var i in res.data){
-                    var entry = res.data[i];
-
-                    entry.service = "facebook";
-                    entry.profile = profile;
-                    entry.match = "@" + profile;
-
-                    extractedPosts.push(entry);
-                }
-
-                if(res.paging!=undefined && res.paging.next!=undefined){
-                    bufferedPages.push({profile: profile, url: res.paging.next});
-                }
-
-                return callback();
+            if(res.paging!=undefined && res.paging.next!=undefined){
+                bufferedPages.push({profile: profile, url: res.paging.next});
             }
 
-            return;
+            return callback();
+        }
+
+        return;
 
     });
 }
