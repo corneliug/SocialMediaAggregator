@@ -28,6 +28,8 @@ exports.authenticate = function(callback){
         client_secret: config.apps.facebook.secret,
         grant_type: 'client_credentials'
     }, function (res) {
+        console.log('authenticate call: ');
+        console.log(res);
         logger.log('debug',"Authentication to Facebook was successful!");
 
         session.access_token    = res.access_token;
@@ -40,8 +42,9 @@ exports.authenticate = function(callback){
 
 exports.ensureAuthenticated = function(callback){
     var $that = this;
-
+    console.log('auth start');
     this.isSessionValid(function(sessionValid){
+        console.log('session valid: ' + sessionValid);
         if(sessionValid){
             return callback();
         } else {
@@ -56,7 +59,7 @@ exports.ensureAuthenticated = function(callback){
 exports.isSessionValid = function(callback){
     var $that = this;
     var accessTokenNotExpired = session.access_token!=null && new Date().getTime() - session.expires > 0;
-
+    console.log('isSessionValid token ' + accessTokenNotExpired);
     if(accessTokenNotExpired){
         FB.api('facebook?access_token=' + session.access_token, function (res) {
             if(!res || res.error) {
