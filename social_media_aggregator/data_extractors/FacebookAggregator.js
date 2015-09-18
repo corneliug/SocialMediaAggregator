@@ -80,7 +80,8 @@ exports.extractData = function(userName, agencyName, criteria){
         logger.log('debug',"Extracting data from Facebook...");
         var asyncTasks = [];
 
-        searchCriteria.profiles.forEach(function(profile){
+        criteria.profiles.forEach(function(profile){
+            console.log(profile);
             asyncTasks.push(function(callback){
                 $that.extractProfilePosts(userName, agencyName, profile, callback);
             });
