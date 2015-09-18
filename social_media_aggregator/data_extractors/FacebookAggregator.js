@@ -278,8 +278,6 @@ exports.extractPostsLikes = function(post, cb){
 // saves the post into the db
 exports.savePost = function(userName, agencyName, postInfo, callback) {
     var post = new Post();
-    console.log(callback);
-
     post.userName = userName;
     post.agencyName = agencyName;
     post.id = postInfo.id;
@@ -300,6 +298,8 @@ exports.savePost = function(userName, agencyName, postInfo, callback) {
 
 exports.handleError = function(errCode, errMessage, nextAction){
     var $that = this;
+    console.log("facebook errors: " + errCode);
+    console.log(errMessage);
     switch (errCode) {
         // access_token expired
         case 102: {

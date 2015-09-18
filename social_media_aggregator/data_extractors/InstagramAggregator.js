@@ -14,10 +14,8 @@ exports.aggregateData = function(userName, agency) {
 
     AggregatorController.gatherSearchCriteria(userName, agency, 'instagram', function(criteria){
         searchCriteria = criteria;
-        console.log(criteria);
 
         $that.ensureAuthenticated(function(isAuthenticated){
-            console.log(isAuthenticated);
             if(isAuthenticated){
                 $that.extractData(userName, agency.name, criteria);
             }
@@ -35,7 +33,6 @@ exports.ensureAuthenticated = function(callback){
                 console.log(err);
                 return callback(false);
             }
-            console.log(data);
             data = JSON.parse(data);
             config.apps.instagram.access_token = data.access_token;
             return callback(true);
@@ -93,7 +90,6 @@ exports.getProfileId = function(profile, callback){
         method: 'GET'
     }, function(error, response, body) {
         body = JSON.parse(body);
-        console.log(body);
 
         return body.data!=undefined && body.data.length!=0 ? callback(body.data[0].id) : callback(undefined);
     });
@@ -115,8 +111,6 @@ exports.extractProfilePosts = function(profileid, lastPostId, callback){
         method: 'GET'
     }, function(error, response, body) {
         body = JSON.parse(body);
-        console.log("body 2");
-        console.log(body);
 
         return callback(body.data);
     });

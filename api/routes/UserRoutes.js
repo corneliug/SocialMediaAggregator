@@ -10,7 +10,6 @@ var express = require('express'),
 router.route('/create')
     .post(function(req, res) {
         var payload = req.body;
-        console.log(payload);
         if(_.has(payload, 'name')) {
             var NewUser = new User();
             User.createUser(payload, NewUser, function(createError, user) {

@@ -50,10 +50,6 @@ exports.extractData = function(user){
 
 exports.gatherSearchCriteria = function(userName, agency, platform, callback){
     var criteriaList = agency[platform] || [];
-    console.log(agency);
-    console.log('------------' + platform + '------------')
-    console.log('top -------------');
-    console.log(criteriaList);
     if(criteriaList.length && _.isArray(criteriaList)) {
         var searchCriteria = {
             tags: [],
@@ -61,11 +57,6 @@ exports.gatherSearchCriteria = function(userName, agency, platform, callback){
         };
 
         _.map(criteriaList, function(criteria) {
-            // var criteria = criteriaList[index];
-            console.log('top111 -------------');
-            console.log(criteria);
-            console.log('top222 -------------');
-            // console.log(index);
              var criteriaType = criteria.substring(0, 1);
 
             if(criteriaType === CRITERIA_TYPE.HASHTAG) {
