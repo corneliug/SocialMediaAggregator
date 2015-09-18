@@ -147,6 +147,9 @@ exports.extractPostsInfo = function(profile, lastPostTime, callback){
     FB.api(url, function (res) {
         console.log(url);
         console.log(res.error);
+        if(profile == "goredmond") {
+            console.log(res);
+        }
         if(!res || res.error) {
             $that.handleError(res.error.code, res.error.message, function(){
                 return $that.extractPostsInfo(profile, lastPostTime, callback);
