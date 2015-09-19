@@ -16,9 +16,9 @@ exports.startExecution = function(){
     var $that = this;
     $that.extractData();
 
-    // setInterval(function(){
-    //     $that.extractData();
-    // }, config.app.frequency * 1000);
+    setInterval(function(){
+        $that.extractData();
+    }, config.app.frequency * 1000);
 }
 
 var extractDataForUser = function(user) {

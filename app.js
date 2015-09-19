@@ -53,12 +53,12 @@ require('./config/db');
 // Test home route
 app.get('/', function(req, res) {
     res.send("Hello");
-    AggregatorController.startExecution();
+    // AggregatorController.startExecution();
 });
 
 app.listen(config.port);
 
-// AggregatorController.startExecution();
+AggregatorController.startExecution();
 
 // Routes
 app.use('/instagram', InstagramRoutes);
