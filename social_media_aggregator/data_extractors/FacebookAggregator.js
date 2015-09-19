@@ -28,8 +28,6 @@ exports.authenticate = function(callback){
         client_secret: config.apps.facebook.secret,
         grant_type: 'client_credentials'
     }, function (res) {
-        console.log('authenticate call: ');
-        console.log(res);
         logger.log('debug',"Authentication to Facebook was successful!");
 
         session.access_token    = res.access_token;
@@ -42,9 +40,7 @@ exports.authenticate = function(callback){
 
 exports.ensureAuthenticated = function(callback){
     var $that = this;
-    console.log('auth start');
     this.isSessionValid(function(sessionValid){
-        console.log('session valid: ' + sessionValid);
         if(sessionValid){
             return callback();
         } else {
@@ -59,7 +55,6 @@ exports.ensureAuthenticated = function(callback){
 exports.isSessionValid = function(callback){
     var $that = this;
     var accessTokenNotExpired = session.access_token!=null && new Date().getTime() - session.expires > 0;
-    console.log('isSessionValid token ' + accessTokenNotExpired);
     if(accessTokenNotExpired){
         FB.api('facebook?access_token=' + session.access_token, function (res) {
             if(!res || res.error) {
@@ -89,7 +84,7 @@ exports.extractData = function(userName, agencyName, criteria){
 
         async.parallel(asyncTasks, function(){
             if(asyncTasks.length < config.app.postLimit) {
-                $that.extractPostsFromBufferedPages(userName, agencyName);
+                $that.extractPostsFromBufferedPages();
             }
         });
 
@@ -103,7 +98,7 @@ exports.extractProfilePosts = function(userName, agencyName, profile, callback){
 
     $that.getLastPostTime('@' + profile, function(lastPostTime){
 
-        $that.extractPostsInfo(profile, lastPostTime, function(){
+        $that.extractPostsInfo(userName, agencyName, profile, lastPostTime, function(){
 
             var asyncTasks = [];
 
@@ -113,7 +108,7 @@ exports.extractProfilePosts = function(userName, agencyName, profile, callback){
 
                     $that.extractPostsLikes(post, function(post){
 
-                        $that.savePost(userName, agencyName, post, callback);
+                        $that.savePost(post, callback);
 
                     });
 
@@ -137,7 +132,7 @@ exports.getLastPostTime = function(match, callback){
 }
 
 // extracts id, message, creted_time, icon, link
-exports.extractPostsInfo = function(profile, lastPostTime, callback){
+exports.extractPostsInfo = function(userName, agencyName, profile, lastPostTime, callback){
     var $that = this;
     var url = profile + '/posts?fields=id,message,picture,full_picture,created_time,icon,link';
     url += '&access_token=' + session.access_token;
@@ -145,14 +140,9 @@ exports.extractPostsInfo = function(profile, lastPostTime, callback){
     url += "&limit=" + config.app.postsLimit;
 
     FB.api(url, function (res) {
-        console.log(url);
-        console.log(res.error);
-        if(profile == "goredmond") {
-            console.log(res);
-        }
         if(!res || res.error) {
             $that.handleError(res.error.code, res.error.message, function(){
-                return $that.extractPostsInfo(profile, lastPostTime, callback);
+                return $that.extractPostsInfo(userName, agencyName, profile, lastPostTime, callback);
             });
         }
 
@@ -163,12 +153,19 @@ exports.extractPostsInfo = function(profile, lastPostTime, callback){
                 entry.service = "facebook";
                 entry.profile = profile;
                 entry.match = "@" + profile;
+                entry.userName = userName;
+                entry.agencyName = agencyName;
 
                 extractedPosts.push(entry);
             }
 
             if(res.paging!=undefined && res.paging.next!=undefined){
-                bufferedPages.push({profile: profile, url: res.paging.next});
+                bufferedPages.push({
+                    profile: profile,
+                    userName: userName,
+                    agencyName: agencyName,
+                    url: res.paging.next
+                });
             }
 
             return callback();
@@ -179,7 +176,7 @@ exports.extractPostsInfo = function(profile, lastPostTime, callback){
     });
 }
 
-exports.extractPostsFromBufferedPages = function(userName, agencyName){
+exports.extractPostsFromBufferedPages = function(){
     var $that = this;
 
     if(bufferedPages.length!=0){
@@ -219,7 +216,7 @@ exports.extractPostsFromBufferedPages = function(userName, agencyName){
         async.parallel(bufferedPagesTasks, function(){
 
             bufferedPages = [];
-            $that.extractPostsFromBufferedPages(userName, agencyName);
+            $that.extractPostsFromBufferedPages();
 
         });
     }
@@ -247,12 +244,18 @@ exports.extractNextInfo = function(bufferedPage, callback){
                 entry.service = "facebook";
                 entry.profile = bufferedPage.profile;
                 entry.match = "@" + bufferedPage.profile;
-
+                entry.userName = bufferedPage.userName;
+                entry.agencyName = bufferedPage.agencyName;
                 extractedPosts.push(entry);
             }
 
             if(body.paging!=undefined && body.paging.next!=undefined){
-                bufferedPagesInExec.push({profile: bufferedPage.profile, url: body.paging.next});
+                bufferedPagesInExec.push({
+                    profile: bufferedPage.profile,
+                    userName: bufferedPage.userName,
+                    agencyName: bufferedPage.agencyName,
+                    url: body.paging.next
+                });
             }
 
             return callback();
@@ -285,11 +288,10 @@ exports.extractPostsLikes = function(post, cb){
 }
 
 // saves the post into the db
-exports.savePost = function(userName, agencyName, postInfo, callback) {
-    console.log('saving post');
+exports.savePost = function(postInfo, callback) {
     var post = new Post();
-    post.userName = userName;
-    post.agencyName = agencyName;
+    post.userName = postInfo.userName;
+    post.agencyName = postInfo.agencyName;
     post.id = postInfo.id;
     post.date = new Date(postInfo.created_time);
     post.date_extracted = new Date();
@@ -308,8 +310,6 @@ exports.savePost = function(userName, agencyName, postInfo, callback) {
 
 exports.handleError = function(errCode, errMessage, nextAction){
     var $that = this;
-    console.log("facebook errors: " + errCode);
-    console.log(errMessage);
     switch (errCode) {
         // access_token expired
         case 102: {

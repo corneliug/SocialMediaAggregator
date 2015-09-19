@@ -16,15 +16,15 @@ exports.startExecution = function(){
     var $that = this;
     $that.extractData();
 
-    setInterval(function(){
-        $that.extractData();
-    }, config.app.frequency * 1000);
+    // setInterval(function(){
+    //     $that.extractData();
+    // }, config.app.frequency * 1000);
 }
 
 var extractDataForUser = function(user) {
     _.forEach(user.agencies, function(agency) {
-        console.log("extracting for agency: ");
-        console.log(agency);
+        // console.log("extracting for agency: ");
+        // console.log(agency);
         FacebookAggregator.aggregateData(user.name, agency);
         TwitterAggregator.aggregateData(user.name, agency);
         InstagramAggregator.aggregateData(user.name, agency);
