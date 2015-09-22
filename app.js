@@ -10,10 +10,6 @@ var express = require('express'),
     UserRoutes = require(__dirname + '/api/routes/UserRoutes'),
     InstagramRoutes = require(__dirname + '/social_media_aggregator/routes/InstagramRoutes'),
     basicAuth = require('basic-auth');
-time = require('time');
-time.listTimezones(function(timezones) {
-  console.log(timezones);
-});
 
 // Load ENV
 var path = process.env.MONGO_PORT_27017_TCP_ADDR 
@@ -88,7 +84,7 @@ app.get('/', function(req, res) {
 
 app.listen(config.port);
 
-// AggregatorController.startExecution();
+AggregatorController.startExecution();
 
 // Routes
 app.use('/instagram', InstagramRoutes);

@@ -5,8 +5,7 @@ var express = require('express'),
     AggregatorController = require('../AggregatorController'),
     Post = require('../../model/Post'),
     _ = require('lodash'),
-    fs = require('fs'),
-    time = require('time');
+    fs = require('fs');
 
 var searchCriteria = {};
 
@@ -143,10 +142,8 @@ exports.savePosts = function(userName, agencyName, match, posts, callback){
             post.userName = userName;
             post.agencyName = agencyName;
             post.id = postInfo.id;
-            post.date = new time.Date(postInfo.created_time * 1000, 'America/Los_Angeles');
-            now = new time.Date();
-            now.setTimezone('America/Los_Angeles');
-            post.date_extracted = now;
+            post.date = new Date(postInfo.created_time * 1000);
+            post.date_extracted = new Date();
             post.service = 'instagram';
             post.account = postInfo.user.username;
             post.match = match;

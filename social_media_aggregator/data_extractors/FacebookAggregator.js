@@ -3,8 +3,7 @@ var express = require('express'),
     async = require('async'),
     FB = require('fb'),
     AggregatorController = require('../AggregatorController'),
-    Post = require('../../model/Post'),
-    time = require('time');
+    Post = require('../../model/Post');
 
 var session = {};
 var searchCriteria = {};
@@ -294,10 +293,8 @@ exports.savePost = function(postInfo, callback) {
     post.userName = postInfo.userName;
     post.agencyName = postInfo.agencyName;
     post.id = postInfo.id;
-    post.date = new time.Date(postInfo.created_time, 'America/Los_Angeles');
-    now = new time.Date();
-    now.setTimezone('America/Los_Angeles');
-    post.date_extracted = now;
+    post.date = new Date(postInfo.created_time);
+    post.date_extracted = new Date();
     post.service = postInfo.service;
     post.account = postInfo.profile;
     post.match = postInfo.match;
