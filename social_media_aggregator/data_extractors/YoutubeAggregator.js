@@ -3,7 +3,8 @@ var express = require('express'),
     async = require('async'),
     AggregatorController = require('../AggregatorController'),
     _ = require('lodash'),
-    Post = require('../../model/Post');
+    Post = require('../../model/Post'),
+    time = require('time');
 
 var session = {};
 var searchCriteria = {};
@@ -172,8 +173,10 @@ exports.savePost = function(userName, agencyName, videoInfo, callback){
     post.userName = userName;
     post.agencyName = agencyName;
     post.id = videoInfo.id;
-    post.date = new Date(videoInfo.snippet.publishedAt);
-    post.date_extracted = new Date();
+    post.date = new time.Date(videoInfo.snippet.publishedAt, 'UTC');
+    now = new time.Date();
+    now.setTimezone("UTC");
+    post.date_extracted = now;
     post.service = 'youtube';
     post.match = '@' + videoInfo.snippet.channelTitle;
     post.text = videoInfo.snippet.title;

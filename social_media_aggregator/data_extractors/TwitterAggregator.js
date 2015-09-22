@@ -4,7 +4,8 @@ var express = require('express'),
     btoa = require('btoa'),
     AggregatorController = require('../AggregatorController'),
     _ = require('lodash'),
-    Post = require('../../model/Post');
+    Post = require('../../model/Post'),
+    time = require('time');
 
 var session = {};
 var searchCriteria = {};
@@ -177,8 +178,10 @@ exports.saveProfilePosts = function(profile, posts, callback){
             post.userName = postInfo.userName;
             post.agencyName = postInfo.agencyName;
             post.id = postInfo.id_str;
-            post.date = new Date(postInfo.created_at);
-            post.date_extracted = new Date();
+            post.date = new time.Date(postInfo.created_at, 'UTC');
+            now = new time.Date();
+            now.setTimezone("UTC");
+            post.date_extracted = now;
             post.service = 'twitter';
             post.account = profile;
             post.match = '@' + profile;
@@ -216,8 +219,10 @@ exports.saveTagsPosts = function(tag, posts, callback){
                 post.userName = postInfo.userName;
                 post.agencyName = postInfo.agencyName;
                 post.id = postInfo.id_str;
-                post.date = new Date(postInfo.created_at);
-                post.date_extracted = new Date();
+                post.date = new time.Date(postInfo.created_at, 'UTC');
+                now = new time.Date();
+                now.setTimezone("UTC");
+                post.date_extracted = now;
                 post.service = 'twitter';
                 post.match = '#' + tag;
                 post.text = postInfo.text;

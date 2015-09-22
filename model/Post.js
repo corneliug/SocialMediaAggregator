@@ -1,6 +1,7 @@
 var mongoose = require('mongoose'),
     random = require('mongoose-simple-random'),
-    config = require('../config/config.js');
+    config = require('../config/config.js'),
+    time = require('time');
 
 var ObjectId = mongoose.Schema.ObjectId;
 
@@ -34,7 +35,10 @@ PostSchema.static('getLastPostTime', function(service, match, callback){
     }).sort({
         date: -1
     }).exec(function (err, posts) {
-        return posts.length!=0 ? callback(posts[0].date.getTime()) : callback(undefined);
+        var date = posts.length!=0 
+                 ? new time.Date(posts[0].date, 'America/Los_Angeles')
+                 : undefined;
+        return date ? callback(date.getTime()) : callback(undefined);
     });
 });
 
