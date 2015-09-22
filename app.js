@@ -79,7 +79,7 @@ require('./config/db');
 // Test home route
 app.get('/', function(req, res) {
     res.send("Hello");
-    AggregatorController.extractData();
+    // AggregatorController.extractData();
 });
 
 app.listen(config.port);
