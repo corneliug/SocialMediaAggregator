@@ -173,9 +173,9 @@ exports.savePost = function(userName, agencyName, videoInfo, callback){
     post.userName = userName;
     post.agencyName = agencyName;
     post.id = videoInfo.id;
-    post.date = new time.Date(videoInfo.snippet.publishedAt, 'UTC');
+    post.date = new time.Date(videoInfo.snippet.publishedAt, 'America/Los_Angeles');
     now = new time.Date();
-    now.setTimezone("UTC");
+    now.setTimezone('America/Los_Angeles');
     post.date_extracted = now;
     post.service = 'youtube';
     post.match = '@' + videoInfo.snippet.channelTitle;

@@ -5,6 +5,8 @@ FROM mhart/alpine-node:0.12
 # RUN npm install -g forever
 # RUN npm install
 
+RUN apk add --update tzdata
+
 EXPOSE 8080
 
 CMD [ "node", "/src/app.js" ]

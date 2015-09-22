@@ -180,7 +180,7 @@ exports.saveProfilePosts = function(profile, posts, callback){
             post.id = postInfo.id_str;
             post.date = new time.Date(postInfo.created_at, 'UTC');
             now = new time.Date();
-            now.setTimezone("UTC");
+            now.setTimezone('America/Los_Angeles');
             post.date_extracted = now;
             post.service = 'twitter';
             post.account = profile;
@@ -221,7 +221,7 @@ exports.saveTagsPosts = function(tag, posts, callback){
                 post.id = postInfo.id_str;
                 post.date = new time.Date(postInfo.created_at, 'UTC');
                 now = new time.Date();
-                now.setTimezone("UTC");
+                now.setTimezone('America/Los_Angeles');
                 post.date_extracted = now;
                 post.service = 'twitter';
                 post.match = '#' + tag;

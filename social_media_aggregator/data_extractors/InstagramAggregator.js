@@ -143,9 +143,9 @@ exports.savePosts = function(userName, agencyName, match, posts, callback){
             post.userName = userName;
             post.agencyName = agencyName;
             post.id = postInfo.id;
-            post.date = new time.Date(postInfo.created_time * 1000, 'UTC');
+            post.date = new time.Date(postInfo.created_time * 1000, 'America/Los_Angeles');
             now = new time.Date();
-            now.setTimezone("UTC");
+            now.setTimezone('America/Los_Angeles');
             post.date_extracted = now;
             post.service = 'instagram';
             post.account = postInfo.user.username;

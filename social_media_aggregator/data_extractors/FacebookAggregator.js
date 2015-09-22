@@ -294,8 +294,10 @@ exports.savePost = function(postInfo, callback) {
     post.userName = postInfo.userName;
     post.agencyName = postInfo.agencyName;
     post.id = postInfo.id;
-    post.date = new time.Date(postInfo.created_time, 'UTC');
-    post.date_extracted = new Date();
+    post.date = new time.Date(postInfo.created_time, 'America/Los_Angeles');
+    now = new time.Date();
+    now.setTimezone('America/Los_Angeles');
+    post.date_extracted = now;
     post.service = postInfo.service;
     post.account = postInfo.profile;
     post.match = postInfo.match;
