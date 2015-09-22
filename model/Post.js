@@ -37,7 +37,7 @@ PostSchema.static('getLastPostTime', function(service, match, callback){
     }).exec(function (err, posts) {
         if(posts.length!=0 ) {
             var time = moment.tz(posts[0].date, 'America/Los_Angeles').valueOf();
-            return callback(time);
+            return callback(Math.floor(time/1000));
         }
         else {
             return callback(undefined)
