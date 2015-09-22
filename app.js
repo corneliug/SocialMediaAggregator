@@ -8,11 +8,34 @@ var express = require('express'),
     AggregatorController = require(__dirname + '/social_media_aggregator/AggregatorController'),
     ApiRoutes = require(__dirname + '/api/routes/ApiRoutes'),
     UserRoutes = require(__dirname + '/api/routes/UserRoutes'),
-    InstagramRoutes = require(__dirname + '/social_media_aggregator/routes/InstagramRoutes');
+    InstagramRoutes = require(__dirname + '/social_media_aggregator/routes/InstagramRoutes'),
+    basicAuth = require('basic-auth');
+
+// Load ENV
+require('dotenv').load();
 
 global.config = require(__dirname + "/config/config.js");
 
 var app = express();
+
+global.routeAuth = function (req, res, next) {
+  function unauthorized(res) {
+    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+    return res.send(401);
+  };
+
+  var user = basicAuth(req);
+
+  if (!user || !user.name || !user.pass) {
+    return unauthorized(res);
+  };
+
+  if (user.name ===  process.env.API_AUTH_USER && user.pass === process.env.API_AUTH_PASS) {
+    return next();
+  } else {
+    return unauthorized(res);
+  };
+};
 
 winston.level = config.app.logging_level;
 global.logger = new (winston.Logger)({
@@ -53,12 +76,12 @@ require('./config/db');
 // Test home route
 app.get('/', function(req, res) {
     res.send("Hello");
-    // AggregatorController.startExecution();
+    AggregatorController.extractData();
 });
 
 app.listen(config.port);
 
-AggregatorController.startExecution();
+// AggregatorController.startExecution();
 
 // Routes
 app.use('/instagram', InstagramRoutes);

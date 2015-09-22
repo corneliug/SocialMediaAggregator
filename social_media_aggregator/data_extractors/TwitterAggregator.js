@@ -22,7 +22,7 @@ exports.aggregateData = function(userName, agency) {
 }
 
 exports.authenticate = function(callback){
-    var encodedAuth = 'Basic ' + btoa(config.apps.twitter.key + ":" + config.apps.twitter.secret);
+    var encodedAuth = 'Basic ' + btoa(config.apps.twitter.key + ":" + process.env.TWITTER_SECRET);
 
     var formData = {
         grant_type: 'client_credentials'
@@ -52,13 +52,13 @@ exports.extractData = function(userName, agencyName, criteria){
     var profilesTasks = [];
     var tagsTasks = [];
 
-    searchCriteria.profiles.forEach(function(profile){
+    criteria.profiles.forEach(function(profile){
         profilesTasks.push(function(callback){
             $that.getLastPostId('@' + profile, function(lastPostId){
                 logger.log('debug','Extracting data from Twitter profile %s', profile);
-                $that.extractProfilePosts(profile, lastPostId, function(posts){
+                $that.extractProfilePosts(userName, agencyName, profile, lastPostId, function(posts){
                     if(posts!=undefined){
-                        $that.saveProfilePosts(userName, agencyName, profile, posts, callback);
+                        $that.saveProfilePosts(profile, posts, callback);
                     } else {
                         callback();
                     }
@@ -67,12 +67,12 @@ exports.extractData = function(userName, agencyName, criteria){
         });
     });
 
-    searchCriteria.tags.forEach(function(tag){
+    criteria.tags.forEach(function(tag){
         tagsTasks.push(function(callback){
             $that.getLastPostId('#' + tag, function(lastPostId){
-                $that.extractTagPosts(tag, lastPostId, function(posts){
+                $that.extractTagPosts(userName, agencyName, tag, lastPostId, function(posts){
                     if(posts!=undefined){
-                        $that.saveTagsPosts(userName, agencyName, tag, posts, callback);
+                        $that.saveTagsPosts(tag, posts, callback);
                     } else {
                         callback();
                     }
@@ -94,60 +94,79 @@ exports.getLastPostId = function(match, callback){
     });
 }
 
-exports.extractTagPosts = function(tag, lastPostId, callback){
+exports.extractTagPosts = function(userName, agencyName, tag, lastPostId, callback){
     logger.log('debug', "Extracting data from Twitter tag %s", tag);
 
     var url = 'https://api.twitter.com/1.1/search/tweets.json?q=%23' + tag;
     url += lastPostId!=undefined ? "&since_id=" + lastPostId : "";
     url += "&count=" + config.app.postsLimit + "&result_type=recent";
 
-    request({
-        url: url,
-        method: 'GET',
-        headers: {
-            'Authorization': session.access_token
-        }
-    }, function(error, response, body) {
-        body = JSON.parse(body);
+    (function(callData) {
+        request({
+            url: url,
+            method: 'GET',
+            headers: {
+                'Authorization': session.access_token
+            }
+        }, function(error, response, body) {
+            body = JSON.parse(body);
+            _.forEach(body.statuses, function(post, key) {
+                if(_.has(post, 'entities')) {
+                    body.statuses[key].userName = callData.userName;
+                    body.statuses[key].agencyName = callData.agencyName;
+                }
+            });
 
-        return body.statuses!=undefined && body.statuses.length!=0 ? callback(body.statuses) : callback(undefined);
-    });
+            return body.statuses!=undefined && body.statuses.length!=0 ? callback(body.statuses) : callback(undefined);
+        })
+    })({userName: userName, agencyName: agencyName});
 }
 
-exports.extractProfilePosts = function(profile, lastPostId, callback){
+exports.extractProfilePosts = function(userName, agencyName, profile, lastPostId, callback){
     logger.log('debug',  "Extracting data from Twitter profile %s", profile);
 
     var url = 'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=' + profile;
     url += lastPostId!=undefined ? "&since_id=" + lastPostId : "";
     url += "&count=" + config.app.postsLimit;
 
-    request({
-        url: url,
-        method: 'GET',
-        headers: {
-            'Authorization': session.access_token
-        }
-    }, function(error, response, body) {
-        body = JSON.parse(body);
-        var hasError = false;
+    (function(callData) {
+        request({
+            url: url,
+            method: 'GET',
+            headers: {
+                'Authorization': session.access_token
+            }
+        }, function(error, response, body) {
+            body = JSON.parse(body);
+            var hasError = false;
 
-        // handle no results found
-        if(body.errors!=undefined && body.errors.length!=undefined){
-            for(var i in body.errors){
-                var error = body.errors[i];
+            // handle no results found
+            if(body.errors!=undefined && body.errors.length!=undefined){
+                for(var i in body.errors){
+                    var error = body.errors[i];
 
-                if(error.code == 34){
-                    hasError = true;
-                    break;
+                    if(error.code == 34){
+                        hasError = true;
+                        break;
+                    }
                 }
             }
-        }
+            else {
+                _.forEach(body, function(post, key) {
+                    if(_.has(post, 'entities')) {
+                        body[key].userName = callData.userName;
+                        body[key].agencyName = callData.agencyName;
+                    }
+                });
+            }
 
-        return hasError ? callback(undefined) : callback(body);
-    });
+            return hasError ? callback(undefined) : callback(body);
+        });
+    })({userName: userName, agencyName: agencyName});
+
 }
 
-exports.saveProfilePosts = function(userName, agencyName, profile, posts, callback){
+exports.saveProfilePosts = function(profile, posts, callback){
     var postsTasks = [];
 
     posts.forEach(function(postInfo){
@@ -155,8 +174,8 @@ exports.saveProfilePosts = function(userName, agencyName, profile, posts, callba
 
             var post = new Post();
 
-            post.userName = userName;
-            post.agencyName = agencyName;
+            post.userName = postInfo.userName;
+            post.agencyName = postInfo.agencyName;
             post.id = postInfo.id_str;
             post.date = new Date(postInfo.created_at);
             post.date_extracted = new Date();
@@ -185,7 +204,7 @@ exports.saveProfilePosts = function(userName, agencyName, profile, posts, callba
     });
 }
 
-exports.saveTagsPosts = function(userName, agencyName, tag, posts, callback){
+exports.saveTagsPosts = function(tag, posts, callback){
     var tagsTasks = [];
 
     posts.forEach(function(postInfo){
@@ -194,8 +213,8 @@ exports.saveTagsPosts = function(userName, agencyName, tag, posts, callback){
             if(postInfo.retweet_count!=undefined && postInfo.retweet_count==0){
                 var post = new Post();
                 
-                post.userName = userName;
-                post.agencyName = agencyName;
+                post.userName = postInfo.userName;
+                post.agencyName = postInfo.agencyName;
                 post.id = postInfo.id_str;
                 post.date = new Date(postInfo.created_at);
                 post.date_extracted = new Date();

@@ -8,7 +8,7 @@ var express = require('express'),
 router.get('/authenticate', function(req, res) {
     logger.log('debug', 'Authenticating to Instagram');
     api.use({client_id: config.apps.instagram.key,
-             client_secret: config.apps.instagram.secret});
+             client_secret: process.env.INSTAGRAM_SECRET});
 
     res.redirect(api.get_authorization_url(config.apps.instagram.redirectUri));
 });

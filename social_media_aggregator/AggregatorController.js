@@ -25,19 +25,28 @@ var extractDataForUser = function(user) {
     _.forEach(user.agencies, function(agency) {
         // console.log("extracting for agency: ");
         // console.log(agency);
-        FacebookAggregator.aggregateData(user.name, agency);
-        TwitterAggregator.aggregateData(user.name, agency);
-        InstagramAggregator.aggregateData(user.name, agency);
-        YoutubeAggregator.aggregateData(user.name, agency);
+        if(agency['facebook'].length) {
+            FacebookAggregator.aggregateData(user.name, agency);
+        }
+        if(agency['twitter'].length) {
+            TwitterAggregator.aggregateData(user.name, agency);
+        }
+        if(agency['instagram'].length) {
+            InstagramAggregator.aggregateData(user.name, agency);
+        }
+        if(agency['youtube'].length) {
+            YoutubeAggregator.aggregateData(user.name, agency);
+        }
     });
 };
 
-exports.extractData = function(user){
+exports.extractData = function(user, callback){
     logger.log('info', 'Running data aggregators');
-
+    callback = callback || function() {}; 
     // Aggregate for 1
     if(user) {
         extractDataForUser(user);
+        callback();
     }
     // Do them all
     else {
@@ -46,6 +55,7 @@ exports.extractData = function(user){
             _.forEach(users, function(user) {
                 console.log("extracting for: " + user.name);
                 extractDataForUser(user);
+                callback();
             });
         });
     }

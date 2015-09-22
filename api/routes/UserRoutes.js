@@ -5,9 +5,13 @@ var express = require('express'),
     async = require('async'),
     fs = require('fs'),
     _ = require('lodash'), 
-    router = express.Router();
+    router = express.Router(),
+    AggregatorController = require('../../social_media_aggregator/AggregatorController');
 
 router.route('/create')
+    .all(function(req, res, next) {
+        routeAuth(req, res, next);
+    })
     .post(function(req, res) {
         var payload = req.body;
         if(_.has(payload, 'name')) {
@@ -28,6 +32,9 @@ router.route('/create')
     });
 
 router.route('/update')
+    .all(function(req, res, next) {
+        routeAuth(req, res, next);
+    })
     .post(function(req, res) {
         var payload = req.body;
         if(_.has(payload, 'name')) {
@@ -48,6 +55,9 @@ router.route('/update')
     });
 
 router.route('/delete')
+    .all(function(req, res, next) {
+        routeAuth(req, res, next);
+    })
     .post(function(req, res) {
         var payload = req.body;
         if(_.has(payload, 'name')) {
@@ -63,6 +73,25 @@ router.route('/delete')
         else {
             res.status(500).json({ error: 'message' });
         }
+    });
+
+
+router.route('/:user/aggregate')
+    .all(function(req, res, next) {
+        routeAuth(req, res, next);
+    })
+    .get(function(req, res) {
+        // Check if user already exists
+        User.findUser(_.get(req, 'params.user'), function(findErr, user) {
+            if(findErr) {
+                res.status(500).json(findErr);
+            }
+            else {
+                AggregatorController.extractData(user, function() {
+                    res.json("Ran aggregator for: " + user.name);
+                });
+            }
+        });
     });
 
 module.exports = router;

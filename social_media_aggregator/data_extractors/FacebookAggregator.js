@@ -25,7 +25,7 @@ exports.aggregateData = function(userName, agency) {
 exports.authenticate = function(callback){
     FB.api('oauth/access_token', {
         client_id: config.apps.facebook.key,
-        client_secret: config.apps.facebook.secret,
+        client_secret: process.env.FACEBOOK_SECRET,
         grant_type: 'client_credentials'
     }, function (res) {
         logger.log('debug',"Authentication to Facebook was successful!");

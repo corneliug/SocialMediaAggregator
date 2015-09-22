@@ -69,9 +69,9 @@ There are 2 collections for this repo.
 ## Sample API requests/responses
 
 
-- Create User
+- Create User **Requires auth**
 ```sh
-curl -X POST -H "Content-Type: application/json" -d '{
+curl -u USERNAME -X POST -H "Content-Type: application/json" -d '{
     "name": "issaquah_wa",
     "agencies": [
       {
@@ -93,9 +93,14 @@ curl -X POST -H "Content-Type: application/json" -d '{
 }' 'http://localhost:8084/user/create'
 ```
 
-- Update User
+- Run Aggregator for user **Requires auth**
 ```sh
-curl -X POST -H "Content-Type: application/json" -d '{
+curl -u USERNAME -X GET -H "Content-Type: application/json" 'http://localhost:8080/user/newyork_ny/aggregate'
+```
+
+- Update User **Requires auth**
+```sh
+curl -u USERNAME -X POST -H "Content-Type: application/json" -d '{
     "name": "issaquah_wa",
     "agencies": [
       {
@@ -109,9 +114,9 @@ curl -X POST -H "Content-Type: application/json" -d '{
 }' 'http://localhost:8084/user/update'
 ```
 
-- Remove social account + posts
+- Remove social account + posts **Requires auth**
 ```sh
-curl -X POST -H "Content-Type: application/json" -d '{
+curl -u USERNAME -X POST -H "Content-Type: application/json" -d '{
     "name": "issaquah_wa",
     "agencies": [
       {
@@ -125,9 +130,9 @@ curl -X POST -H "Content-Type: application/json" -d '{
 }' 'http://localhost:8084/user/update'
 ```
 
-- Delete user agency + posts
+- Delete user agency + posts **Requires auth**
 ```sh
-curl -X POST -H "Content-Type: application/json" -d '{
+curl -u USERNAME -X POST -H "Content-Type: application/json" -d '{
     "name": "issaquah_wa",
     "agencies": [
       "default"
@@ -135,9 +140,9 @@ curl -X POST -H "Content-Type: application/json" -d '{
 }' 'http://localhost:8084/user/delete'
 ```
 
-- Delete user + posts
+- Delete user + posts **Requires auth**
 ```sh
-curl -X POST -H "Content-Type: application/json" -d '{
+curl -u USERNAME -X POST -H "Content-Type: application/json" -d '{
     "name": "issaquah_wa"
 }' 'http://localhost:8084/user/delete'
 ```
