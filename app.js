@@ -12,7 +12,10 @@ var express = require('express'),
     basicAuth = require('basic-auth');
 
 // Load ENV
-require('dotenv').load();
+var path = process.env.MONGO_PORT_27017_TCP_ADDR 
+         ? '/src/.env'
+         : '.env';
+require('dotenv').config({path: path});
 
 global.config = require(__dirname + "/config/config.js");
 
@@ -62,7 +65,7 @@ app.use(cors({
     'methods': ['GET', 'POST']
 }));
 app.use(reqLogger('dev'));
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ 
     secret: 'asd13asd786youtasvasdas3a78vwe123',
     resave: true,
@@ -81,7 +84,7 @@ app.get('/', function(req, res) {
 
 app.listen(config.port);
 
-// AggregatorController.startExecution();
+AggregatorController.startExecution();
 
 // Routes
 app.use('/instagram', InstagramRoutes);
