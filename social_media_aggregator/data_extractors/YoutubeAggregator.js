@@ -69,22 +69,35 @@ exports.extractChannelsData = function(userName, agencyName, criteria){
         channelTasks.push(function(callback){
             $that.getChannel(channel, function(channelsResult){
                 if(channelsResult!=undefined){
-                    $that.getPlaylistItems(channelsResult[0].contentDetails.relatedPlaylists.uploads, function(playlistItems){
+                    // var playlistIds = [
+                    //     channelsResult[0].contentDetails.relatedPlaylists.uploads,
+                    //     channelsResult[0].contentDetails.relatedPlaylists.likes,
+                    //     channelsResult[0].contentDetails.relatedPlaylists.favorites
+                    // ];
+                    //$that.getPlaylistItems(playlistIds, function(playlistItems){
+                    $that.getActivityItems(channelsResult[0].id, function(playlistItems){
                         if(playlistItems!=undefined){
                             var videosTasks = [];
 
                             playlistItems.forEach(function(video){
-                                videosTasks.push(function(callback){
-                                    $that.extractVideoInfo(video.contentDetails.videoId, function(videoInfo){
-                                        if(videoInfo!=undefined){
-                                            $that.savePost(userName, agencyName, videoInfo, function(){
+                                // get favorite, like, or upload
+                                var videoId =  _.get(video, 'contentDetails.upload.resourceId.videoId')
+                                            || _.get(video, 'contentDetails.like.resourceId.videoId')
+                                            || _.get(video, 'contentDetails.favorite.resourceId.videoId')
+                                            || null;
+                                if(videoId) {
+                                    videosTasks.push(function(callback){
+                                        $that.extractVideoInfo(videoId, function(videoInfo){
+                                            if(videoInfo!=undefined){
+                                                $that.savePost(userName, agencyName, videoInfo, function(){
+                                                    callback();
+                                                });
+                                            } else {
                                                 callback();
-                                            });
-                                        } else {
-                                            callback();
-                                        }
+                                            }
+                                        });
                                     });
-                                });
+                                }
                             });
 
                             async.parallel(videosTasks, function(){
@@ -117,9 +130,20 @@ exports.getChannel = function(channel, callback){
     });
 }
 
-exports.getPlaylistItems = function(playlistId, callback){
+exports.getActivityItems = function(channelId, callback){
     request({
-        url: 'https://www.googleapis.com/youtube/v3/playlistItems?maxResults=' + config.app.postsLimit + '&part=contentDetails&playlistId=' + playlistId + '&key=' + config.apps.google.key,
+        url: 'https://www.googleapis.com/youtube/v3/activities?maxResults=' + config.app.postsLimit + '&part=contentDetails&channelId=' + channelId + '&key=' + config.apps.google.key,
+        method: 'GET'
+    }, function(error, response, body) {
+        body = JSON.parse(body);
+
+        return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);
+    });
+}
+
+exports.getPlaylistItems = function(playlistIds, callback){
+    request({
+        url: 'https://www.googleapis.com/youtube/v3/playlistItems?maxResults=' + config.app.postsLimit + '&part=contentDetails&id=' + playlistIds.join(',') + '&key=' + config.apps.google.key,
         method: 'GET'
     }, function(error, response, body) {
         body = JSON.parse(body);

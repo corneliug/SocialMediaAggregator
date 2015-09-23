@@ -84,7 +84,7 @@ app.get('/', function(req, res) {
 
 app.listen(config.port);
 
-AggregatorController.startExecution();
+// AggregatorController.startExecution();
 
 // Routes
 app.use('/instagram', InstagramRoutes);
