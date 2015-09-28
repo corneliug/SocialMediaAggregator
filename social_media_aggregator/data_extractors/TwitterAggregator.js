@@ -15,8 +15,10 @@ exports.aggregateData = function(userName, agency) {
     AggregatorController.gatherSearchCriteria(userName, agency, 'twitter', function(criteria){
         searchCriteria = criteria;
 
-        $that.authenticate(function(){
-            $that.extractData(userName, agency.name, criteria);
+        $that.authenticate(function(success){
+            if(success) {
+                $that.extractData(userName, agency.name, criteria);
+            }
         });
     });
 }
@@ -37,12 +39,17 @@ exports.authenticate = function(callback){
         },
         formData: formData
     }, function(error, response, body) {
-        logger.log('info', 'Twitter authentication response: %s', body);
-        body = JSON.parse(body);
-        session.access_token = 'Bearer ' + body.access_token;
+        if(error || !body || !response) {
+            return callback(undefined);
+        }
+        else {
+            logger.log('info', 'Twitter authentication response: %s', body);
+            body = JSON.parse(body);
+            session.access_token = 'Bearer ' + body.access_token;
 
-        logger.log('debug',"Authentication to Twitter was successful!");
-        return callback();
+            logger.log('debug',"Authentication to Twitter was successful!");
+            return callback(body);
+        }
     });
 }
 
@@ -109,15 +116,20 @@ exports.extractTagPosts = function(userName, agencyName, tag, lastPostId, callba
                 'Authorization': session.access_token
             }
         }, function(error, response, body) {
-            body = JSON.parse(body);
-            _.forEach(body.statuses, function(post, key) {
-                if(_.has(post, 'entities')) {
-                    body.statuses[key].userName = callData.userName;
-                    body.statuses[key].agencyName = callData.agencyName;
-                }
-            });
+            if(error || !body || !response) {
+                return callback(undefined);
+            }
+            else {
+                body = JSON.parse(body);
+                _.forEach(body.statuses, function(post, key) {
+                    if(_.has(post, 'entities')) {
+                        body.statuses[key].userName = callData.userName;
+                        body.statuses[key].agencyName = callData.agencyName;
+                    }
+                });
 
-            return body.statuses!=undefined && body.statuses.length!=0 ? callback(body.statuses) : callback(undefined);
+                return body.statuses!=undefined && body.statuses.length!=0 ? callback(body.statuses) : callback(undefined);
+            }
         })
     })({userName: userName, agencyName: agencyName});
 }
@@ -137,30 +149,35 @@ exports.extractProfilePosts = function(userName, agencyName, profile, lastPostId
                 'Authorization': session.access_token
             }
         }, function(error, response, body) {
-            body = JSON.parse(body);
-            var hasError = false;
-
-            // handle no results found
-            if(body.errors!=undefined && body.errors.length!=undefined){
-                for(var i in body.errors){
-                    var error = body.errors[i];
-
-                    if(error.code == 34){
-                        hasError = true;
-                        break;
-                    }
-                }
+            if(error || !body || !response) {
+                return callback(undefined);
             }
             else {
-                _.forEach(body, function(post, key) {
-                    if(_.has(post, 'entities')) {
-                        body[key].userName = callData.userName;
-                        body[key].agencyName = callData.agencyName;
-                    }
-                });
-            }
+                body = JSON.parse(body);
+                var hasError = false;
 
-            return hasError ? callback(undefined) : callback(body);
+                // handle no results found
+                if(body.errors!=undefined && body.errors.length!=undefined){
+                    for(var i in body.errors){
+                        var error = body.errors[i];
+
+                        if(error.code == 34){
+                            hasError = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    _.forEach(body, function(post, key) {
+                        if(_.has(post, 'entities')) {
+                            body[key].userName = callData.userName;
+                            body[key].agencyName = callData.agencyName;
+                        }
+                    });
+                }
+
+                return hasError ? callback(undefined) : callback(body);
+            }
         });
     })({userName: userName, agencyName: agencyName});
 

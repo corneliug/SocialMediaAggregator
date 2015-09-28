@@ -235,30 +235,32 @@ exports.extractNextInfo = function(bufferedPage, callback){
             });
         }
 
-        body = JSON.parse(body);
+        if(body) {
+            body = JSON.parse(body);
 
-        if(body!=undefined && body.data!=undefined && body.data.length!=0){
-            for(var i in body.data){
-                var entry = body.data[i];
+            if(body!=undefined && body.data!=undefined && body.data.length!=0){
+                for(var i in body.data){
+                    var entry = body.data[i];
 
-                entry.service = "facebook";
-                entry.profile = bufferedPage.profile;
-                entry.match = "@" + bufferedPage.profile;
-                entry.userName = bufferedPage.userName;
-                entry.agencyName = bufferedPage.agencyName;
-                extractedPosts.push(entry);
+                    entry.service = "facebook";
+                    entry.profile = bufferedPage.profile;
+                    entry.match = "@" + bufferedPage.profile;
+                    entry.userName = bufferedPage.userName;
+                    entry.agencyName = bufferedPage.agencyName;
+                    extractedPosts.push(entry);
+                }
+
+                if(body.paging!=undefined && body.paging.next!=undefined){
+                    bufferedPagesInExec.push({
+                        profile: bufferedPage.profile,
+                        userName: bufferedPage.userName,
+                        agencyName: bufferedPage.agencyName,
+                        url: body.paging.next
+                    });
+                }
+
+                return callback();
             }
-
-            if(body.paging!=undefined && body.paging.next!=undefined){
-                bufferedPagesInExec.push({
-                    profile: bufferedPage.profile,
-                    userName: bufferedPage.userName,
-                    agencyName: bufferedPage.agencyName,
-                    url: body.paging.next
-                });
-            }
-
-            return callback();
         }
 
         return;

@@ -89,9 +89,14 @@ exports.getProfileId = function(profile, callback){
         url: 'https://api.instagram.com/v1/users/search?q=' + profile + '&access_token=' + config.apps.instagram.access_token,
         method: 'GET'
     }, function(error, response, body) {
-        body = JSON.parse(body);
+        if(error || !body || !response) {
+            return callback(undefined);
+        }
+        else {
+            body = JSON.parse(body);
 
-        return body.data!=undefined && body.data.length!=0 ? callback(body.data[0].id) : callback(undefined);
+            return body.data!=undefined && body.data.length!=0 ? callback(body.data[0].id) : callback(undefined);
+        }
     });
 }
 
@@ -110,9 +115,14 @@ exports.extractProfilePosts = function(profileid, lastPostId, callback){
         url: url,
         method: 'GET'
     }, function(error, response, body) {
-        body = JSON.parse(body);
+        if(error || !body || !response) {
+            return callback(undefined);
+        }
+        else {
+            body = JSON.parse(body);
 
-        return callback(body.data);
+            return callback(body.data);
+        }
     });
 }
 
@@ -126,9 +136,14 @@ exports.extractTagPosts = function(tag, lastPostId, callback){
         url: url,
         method: 'GET'
     }, function(error, response, body) {
-        body = JSON.parse(body);
+        if(error || !body || !response) {
+            return callback(undefined);
+        }
+        else {
+            body = JSON.parse(body);
 
-        return body.data!=undefined && body.data.length!=0 ? callback(body.data) : callback(undefined);
+            return body.data!=undefined && body.data.length!=0 ? callback(body.data) : callback(undefined);
+        }
     });
 }
 

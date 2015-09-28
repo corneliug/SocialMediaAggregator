@@ -124,9 +124,14 @@ exports.getChannel = function(channel, callback){
         url: 'https://www.googleapis.com/youtube/v3/channels?forUsername=' + channel + '&part=contentDetails&key=' + config.apps.google.key,
         method: 'GET'
     }, function(error, response, body) {
-        body = JSON.parse(body);
+        if(error || !body || !response) {
+            return callback(undefined);
+        }
+        else {
+            body = JSON.parse(body);
 
-        return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);
+            return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);
+        }
     });
 }
 
@@ -135,9 +140,14 @@ exports.getActivityItems = function(channelId, callback){
         url: 'https://www.googleapis.com/youtube/v3/activities?maxResults=' + config.app.postsLimit + '&part=contentDetails&channelId=' + channelId + '&key=' + config.apps.google.key,
         method: 'GET'
     }, function(error, response, body) {
-        body = JSON.parse(body);
+        if(error || !body || !response) {
+            return callback(undefined);
+        }
+        else {
+            body = JSON.parse(body);
 
-        return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);
+            return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);
+        }
     });
 }
 
@@ -146,9 +156,14 @@ exports.getPlaylistItems = function(playlistIds, callback){
         url: 'https://www.googleapis.com/youtube/v3/playlistItems?maxResults=' + config.app.postsLimit + '&part=contentDetails&id=' + playlistIds.join(',') + '&key=' + config.apps.google.key,
         method: 'GET'
     }, function(error, response, body) {
-        body = JSON.parse(body);
+        if(error || !body || !response) {
+            return callback(undefined);
+        }
+        else {
+            body = JSON.parse(body);
 
-        return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);
+            return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);
+        }
     });
 }
 
@@ -157,9 +172,14 @@ exports.extractVideoInfo = function(videoId, callback){
         url: 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet,status,statistics&id=' + videoId + '&key=' + config.apps.google.key,
         method: 'GET'
     }, function(error, response, body) {
-        body = JSON.parse(body);
+        if(error || !body || !response) {
+            return callback(undefined);
+        }
+        else {
+            body = JSON.parse(body);
 
-        return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);
+            return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);
+        }
     });
 }
 
@@ -183,9 +203,14 @@ exports.getSearchResults = function(searchCriteria, lastPostTime, callback){
         url: url,
         method: 'GET'
     }, function(error, response, body) {
-        body = JSON.parse(body);
+        if(error || !body || !response) {
+            return callback(undefined);
+        }
+        else {
+            body = JSON.parse(body);
 
-        return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);
+            return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);
+        }
     });
 }
 
