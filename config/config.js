@@ -31,6 +31,9 @@ module.exports = {
         },
         "google": {
             "key": "AIzaSyA7qCOvn3YgjDqeBuNvOLYqnceVfzfCND0"
+        },
+        "foursquare" : {
+            "key": "1CAZ5UW5UDQ2F1EDEHFOULURU4K3RBWWITBOONJ2XLXPD52V"
         }
     },
 }

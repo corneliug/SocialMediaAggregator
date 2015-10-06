@@ -3,13 +3,16 @@ var express            = require('express'),
     TwitterAggregator = require('./data_extractors/TwitterAggregator'),
     InstagramAggregator = require('./data_extractors/InstagramAggregator'),
     YoutubeAggregator = require('./data_extractors/YoutubeAggregator'),
+    SocrataAggregator = require('./data_extractors/SocrataAggregator'),
+    FoursquareAggregator = require('./data_extractors/FoursquareAggregator'),
     config = require("../config/config.js"),
     _ = require('lodash'),
     User = require('../model/User');
 
 var CRITERIA_TYPE = {
     HASHTAG : '#',
-    PROFILE : '@'
+    PROFILE : '@',
+    URL : '|',
 }
 
 exports.startExecution = function(){
@@ -37,6 +40,15 @@ var extractDataForUser = function(user) {
         if(agency['youtube'].length) {
             YoutubeAggregator.aggregateData(user.name, agency);
         }
+        if(agency['socrata'].length) {
+            SocrataAggregator.aggregateData(user.name, agency);
+        }
+        if(agency['foursquare'].length) {
+            FoursquareAggregator.aggregateData(user.name, agency);
+        }
+        //if(agency['socrata'].length) {
+        //    SocrataAggregator.aggregateData(user.name, agency);
+        //}
     });
 };
 
@@ -66,7 +78,8 @@ exports.gatherSearchCriteria = function(userName, agency, platform, callback){
     if(criteriaList.length && _.isArray(criteriaList)) {
         var searchCriteria = {
             tags: [],
-            profiles: []
+            profiles: [],
+            url: []
         };
 
         _.map(criteriaList, function(criteria) {
@@ -76,6 +89,10 @@ exports.gatherSearchCriteria = function(userName, agency, platform, callback){
                 searchCriteria.tags.push(criteria.substring(1, criteria.length));
             } else if(criteriaType === CRITERIA_TYPE.PROFILE) {
                 searchCriteria.profiles.push(criteria.substring(1, criteria.length));
+            } else {
+                // @todo: make this smarter
+                var arr = criteria.split(CRITERIA_TYPE.URL, 2);
+                searchCriteria.url.push({type: arr[0], url: arr[1]});
             }
         });
 
