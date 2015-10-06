@@ -37,17 +37,17 @@ to:
 ```
 
 2. Allow some top-level user data to be stored:
-  a) Location: geojson (`loc`)
-  b) description: Text (Long)
-  c) teaser: Text
-  d) image: Url
+ a) Location: geojson (`loc`)
+ b) description: Text (Long)
+ c) teaser: Text
+ d) image: Url
 
 **See attched User.json file for full example**
 
 
 3. When creating a new User, automatically pull in data from:
-* Wikipedia: Text and image (example: https://en.wikipedia.org/wiki/Rockridge,_Oakland,_California)
-* Geojson file: (select relevant Feature from https://github.com/substack/oakland-neighborhoods)
+ * Wikipedia: Text and image (example: https://en.wikipedia.org/wiki/Rockridge,_Oakland,_California)
+ * Geojson file: (select relevant Feature from https://github.com/substack/oakland-neighborhoods)
 
 
 II. Tweak existing feeds
@@ -65,8 +65,8 @@ post.loc = {
 III. Add additional feeds
 
 1. Socrata: (mostly implemented: https://github.com/proudcity/SocialMediaAggregator/blob/circa/social_media_aggregator/data_extractors/SocrataAggregator.js) no authentication necessary
-* Docs: http://dev.socrata.com/
-* Example: https://data.oaklandnet.com/Public-Safety/CrimeWatch-Maps-Past-90-Days/ym6k-rx7a
+ * Docs: http://dev.socrata.com/
+ * Example: https://data.oaklandnet.com/Public-Safety/CrimeWatch-Maps-Past-90-Days/ym6k-rx7a
 ```
 "socrata": {
   "frequency": 24000,
@@ -122,9 +122,9 @@ https://seeclickfix.com/api/v2/issues?lat=44.5645659&lng=-123.2620435&zoom=<zoom
 See http://dev.seeclickfix.com/, http://seeclickfix.com/open311/v2/docs
 
 4. GTFS (https://en.wikipedia.org/wiki/General_Transit_Feed_Specification)
-* Code should be available in https://github.com/UlmApi/livemap
-* Wipe all existing entries matching type on import
-* Mostly interested in getting stops (with lat/lng) as feed items
+ * Code should be available in https://github.com/UlmApi/livemap
+ * Wipe all existing entries matching type on import
+ * Mostly interested in getting stops (with lat/lng) as feed items
 ``` 
 "gtfs": {
   "frequency": 240000,
@@ -143,9 +143,9 @@ See http://dev.seeclickfix.com/, http://seeclickfix.com/open311/v2/docs
 
 
 5. Yelp
-* Requires oauth?
-* Docs: https://www.yelp.com/developers/documentation/v2/search_api
-* May eventually want lat/lng search (but not right now)
+ * Requires oauth?
+ * Docs: https://www.yelp.com/developers/documentation/v2/search_api
+ * May eventually want lat/lng search (but not right now)
 ``` 
 "yelp": {
   "frequency": 240000,
