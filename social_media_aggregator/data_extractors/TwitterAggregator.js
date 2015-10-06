@@ -43,11 +43,11 @@ exports.authenticate = function(callback){
             return callback(undefined);
         }
         else {
-            logger.log('info', 'Twitter authentication response: %s', body);
+            //logger.log('info', 'Twitter authentication response: %s', body);
             body = JSON.parse(body);
             session.access_token = 'Bearer ' + body.access_token;
 
-            logger.log('debug',"Authentication to Twitter was successful!");
+            //logger.log('debug',"Authentication to Twitter was successful!");
             return callback(body);
         }
     });
