@@ -5,6 +5,6 @@ web:
   links:
     - mongo
   ports:
-    - "8081:8080"
+    - "8080:8080"
 mongo:
   image: mongo
