@@ -1,0 +1,11 @@
+6/10/2015 18:29:37:568 INFO Running data aggregators
+[0mGET / [32m200 [0m14.748 ms - 5[0m
+extracting for: issaquah_wa
+DonaldTrump
+6/10/2015 18:29:37:937 INFO Twitter authentication response: {"token_type":"bearer","access_token":"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN"}
+[0mGET /favicon.ico [33m404 [0m48.574 ms - 24[0m
+6/10/2015 18:29:40:941 INFO Running data aggregators
+[0mGET / [36m304 [0m1.958 ms - -[0m
+extracting for: issaquah_wa
+DonaldTrump
+6/10/2015 18:29:41:298 INFO Twitter authentication response: {"token_type":"bearer","access_token":"AAAAAAAAAAAAAAAAAAAAAOYKhAAAAAAAulGsXnlRReoZt1VPMaqTb6jQ3nU%3DeZbTjfPJMIwwxI7bgnDlBECL4lDJGmQymCr7S0pVAoFnJRMGuN"}
