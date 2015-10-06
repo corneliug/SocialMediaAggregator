@@ -12,7 +12,10 @@ var AgencySchema = new mongoose.Schema({
     facebook: Array,
     instagram: Array,
     twitter: Array,
-    youtube: Array
+    youtube: Array,
+    seeclickfix: Array,
+    socrata: Array,
+    foursquare: Array
 });
 
 var UserSchema = new mongoose.Schema({
@@ -52,6 +55,9 @@ UserSchema.static('agencyPopulate', function(agencyData) {
     agency.instagram = agencyData.facebook;
     agency.twitter = agencyData.facebook;
     agency.youtube = agencyData.facebook;
+    agency.seeclickfix = agencyData.seeclickfix;
+    agency.socrata = agencyData.socrata;
+    agency.foursquare = agencyData.foursquare;
     return agency;
 });
 

@@ -19,7 +19,9 @@ var PostSchema = new mongoose.Schema({
     url: String,
     text: String,
     likes: Number,
-    agg_user: String
+    agg_user: String,
+    loc : Object,
+    address: String
 }, {
     collection: 'sma_posts'
 });
