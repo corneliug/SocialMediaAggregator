@@ -3,3 +3,5 @@ instagram-config.js
 app.log
 npm-debug.log
 .env
+debug.txt
+
