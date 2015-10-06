@@ -79,7 +79,11 @@ require('./config/db');
 // Test home route
 app.get('/', function(req, res) {
     res.send("Hello");
+<<<<<<< HEAD
     AggregatorController.extractData();
+=======
+    //AggregatorController.extractData();
+>>>>>>> master
 });
 
 app.listen(config.port);
