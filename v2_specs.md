@@ -3,6 +3,7 @@ Jeff Lyon, Oct 6 2015
 
 Jeff to go over changes we have made to original script (https://github.com/proudcity/SocialMediaAggregator/tree/circa)
 * Storing user accounts in sma_users mongodb collection
+* mapping posts to users / services 
 * Saving some keys (private) in .env file
 * Geo-enabled database
 
