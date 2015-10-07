@@ -166,3 +166,34 @@ Example request url
 https://api.yelp.com/v2/search?location=Rockridge, Oakland&key=xxx
 ```
 
+
+7. RSS (https://en.wikipedia.org/wiki/RSS)
+```
+"rss": {
+  "frequency": 24000,
+  "feeds": [
+    {
+      "type": "headlines",
+      "location": "http://www.npr.org/rss/rss.php?id=1001"
+    },
+    {
+      "type": "world_news",
+      "location": "http://www.npr.org/rss/rss.php?id=1004"
+    }
+  ]
+}
+``` 
+
+
+7. iCal (https://en.wikipedia.org/wiki/ICalendar)
+```
+"rss": {
+  "frequency": 24000,
+  "feeds": [
+    {
+      "type": "fixtures",
+      "location": "http://www.fcbarcelona.com/football/first-team/i-calendar/2015-2016"
+    }
+  ]
+}
+``` 
