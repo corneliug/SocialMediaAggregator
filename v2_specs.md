@@ -1,5 +1,6 @@
 # Feeds aggregator enhancements specs
 Jeff Lyon, Oct 6 2015
+Updated Oct 8
 
 Jeff to go over changes we have made to original script (https://github.com/proudcity/SocialMediaAggregator/tree/circa)
 * Storing user accounts in sma_users mongodb collection
@@ -22,13 +23,11 @@ to:
     "frequency": 3000,
     "feeds": [
       {
-        "service": 
         "type": "account",
         "frequency": 24000, // overrides frequency on facebook-level
         "query": "cristiano"
       },
       {
-        "service": 
         "type": "hashtag",
         "query": "govtech"
       }
@@ -38,20 +37,15 @@ to:
 ```
 
 2. Allow some top-level user data to be stored:
- a) Location: geojson (`loc`)
- b) description: Text (Long)
- c) teaser: Text
- d) image: Url
+ * a) Location: geojson (`loc`)
+ * b) description: Text (Long)
+ * c) teaser: Text
+ * d) image: Url
 
 **See attched User.json file for full example**
 
 
-3. When creating a new User, automatically pull in data from:
- * Wikipedia: Text and image (example: https://en.wikipedia.org/wiki/Rockridge,_Oakland,_California)
- * Geojson file: (select relevant Feature from https://github.com/substack/oakland-neighborhoods)
-
-
-II. Tweak existing feeds
+### II. Tweak existing feeds
 
 1. Store lat/lng data when available as (see http://docs.mongodb.org/manual/reference/operator/query/near/)
 ```
@@ -63,9 +57,9 @@ post.loc = {
 ```
 
 
-III. Add additional feeds
+### III. Add additional feeds
 
-1. Socrata: (mostly implemented: https://github.com/proudcity/SocialMediaAggregator/blob/circa/social_media_aggregator/data_extractors/SocrataAggregator.js) no authentication necessary
+#### 1. Socrata: (mostly implemented: https://github.com/proudcity/SocialMediaAggregator/blob/circa/social_media_aggregator/data_extractors/SocrataAggregator.js) no authentication necessary
  * Docs: http://dev.socrata.com/
  * Example: https://data.oaklandnet.com/Public-Safety/CrimeWatch-Maps-Past-90-Days/ym6k-rx7a
 ```
@@ -80,7 +74,7 @@ III. Add additional feeds
 }
 ```
 
-2. Foursquare: (partially implemented: https://github.com/proudcity/SocialMediaAggregator/blob/circa/social_media_aggregator/data_extractors/FoursquareAggregator.js)
+#### 2. Foursquare: (partially implemented: https://github.com/proudcity/SocialMediaAggregator/blob/circa/social_media_aggregator/data_extractors/FoursquareAggregator.js)
 ```
 "foursquare": {
   "frequency": 240000,
@@ -97,7 +91,7 @@ Example url (lat/lng comes from I.2.a above):
 https://api.foursquare.com/v2/venues/explore?ll=44.5645659,-123.2620435&query=police%20station&client_id=xxx&client_secret=xxx&v=20140601
 ```
 
-3. Open311/SeeClickFix
+#### 3. Open311/SeeClickFix
 ```
 "open311": {
   "frequency": 24000,
@@ -122,28 +116,37 @@ https://seeclickfix.com/api/v2/issues?lat=44.5645659&lng=-123.2620435&zoom=<zoom
 ```
 See http://dev.seeclickfix.com/, http://seeclickfix.com/open311/v2/docs
 
-4. GTFS (https://en.wikipedia.org/wiki/General_Transit_Feed_Specification)
- * Code should be available in https://github.com/UlmApi/livemap
- * Wipe all existing entries matching type on import
- * Mostly interested in getting stops (with lat/lng) as feed items
-``` 
-"gtfs": {
-  "frequency": 240000,
+#### 4. RSS (https://en.wikipedia.org/wiki/RSS)
+```
+"rss": {
+  "frequency": 24000,
   "feeds": [
     {
-      "type": "bart",
-      "url": "http://www.bart.gov/dev/schedules/google_transit.zip"
+      "type": "headlines",
+      "location": "http://www.npr.org/rss/rss.php?id=1001"
     },
     {
-      "type": "actransit",
-      "url": "http://gtfs.s3.amazonaws.com/ac-transit_20150218_1708.zip"
+      "type": "world_news",
+      "location": "http://www.npr.org/rss/rss.php?id=1004"
     }
   ]
 }
+``` 
+
+#### 5. iCal (https://en.wikipedia.org/wiki/ICalendar)
 ```
+"rss": {
+  "frequency": 24000,
+  "feeds": [
+    {
+      "type": "fixtures",
+      "location": "http://www.fcbarcelona.com/football/first-team/i-calendar/2015-2016"
+    }
+  ]
+}
+``` 
 
-
-5. Yelp
+#### 6. Yelp
  * Requires oauth?
  * Docs: https://www.yelp.com/developers/documentation/v2/search_api
  * May eventually want lat/lng search (but not right now)
@@ -168,33 +171,29 @@ https://api.yelp.com/v2/search?location=Rockridge, Oakland&key=xxx
 ```
 
 
-7. RSS (https://en.wikipedia.org/wiki/RSS)
-```
-"rss": {
-  "frequency": 24000,
+#### 7. GTFS (https://en.wikipedia.org/wiki/General_Transit_Feed_Specification)
+ * Code should be available in https://github.com/UlmApi/livemap
+ * Wipe all existing entries matching type on import
+ * Mostly interested in getting stops (with lat/lng) as feed items
+ * Getting/reporting schedule information would be nice in the future
+``` 
+"gtfs": {
+  "frequency": 240000,
   "feeds": [
     {
-      "type": "headlines",
-      "location": "http://www.npr.org/rss/rss.php?id=1001"
+      "type": "bart",
+      "url": "http://www.bart.gov/dev/schedules/google_transit.zip"
     },
     {
-      "type": "world_news",
-      "location": "http://www.npr.org/rss/rss.php?id=1004"
+      "type": "actransit",
+      "url": "http://gtfs.s3.amazonaws.com/ac-transit_20150218_1708.zip"
     }
   ]
 }
-``` 
-
-
-7. iCal (https://en.wikipedia.org/wiki/ICalendar)
 ```
-"rss": {
-  "frequency": 24000,
-  "feeds": [
-    {
-      "type": "fixtures",
-      "location": "http://www.fcbarcelona.com/football/first-team/i-calendar/2015-2016"
-    }
-  ]
-}
-``` 
+
+
+### IV. Wikipedia integration 
+When creating a new User, automatically pull in data from:
+ * Wikipedia: Text and image (example: https://en.wikipedia.org/wiki/Rockridge,_Oakland,_California)
+ * Geojson file: (select relevant Feature from https://github.com/substack/oakland-neighborhoods)
