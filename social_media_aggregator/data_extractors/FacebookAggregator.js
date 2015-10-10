@@ -8,47 +8,24 @@ var express = require('express'),
 var session = {};
 var searchCriteria = {};
 
-var CRITERIA_TYPE = {
-    HASHTAG : '#',
-    PROFILE : '@'
-}
-
 var extractedPosts = [];
 var bufferedPages = [];
 var bufferedPagesInExec = [];
 
-exports.gatherSearchCriteria = function(callback){
-    var criteriaList = config.accounts.facebook;
-
-    for(var index in criteriaList) {
-        var criteria = criteriaList[index];
-        var criteriaType = criteria.substring(0, 1);
-
-        if(criteriaType === CRITERIA_TYPE.HASHTAG) {
-            searchCriteria.tags.push(criteria.substring(1, criteria.length));
-        } else if(criteriaType === CRITERIA_TYPE.PROFILE) {
-            searchCriteria.profiles.push(criteria.substring(1, criteria.length));
-        }
-    }
-
-    logger.log('debug',"Gathered search criteria for Facebook...");
-    return callback;
-}
-
-exports.aggregateData = function() {
+exports.aggregateData = function(userName, agency) {
     var $that = this;
 
-    AggregatorController.gatherSearchCriteria(AggregatorController.PLATFORMS.FACEBOOK, function(criteria){
+    AggregatorController.gatherSearchCriteria(userName, agency, 'facebook', function(criteria){
         searchCriteria = criteria;
 
-        $that.extractData();
+        $that.extractData(userName, agency.name, criteria);
     });
 }
 
 exports.authenticate = function(callback){
     FB.api('oauth/access_token', {
         client_id: config.apps.facebook.key,
-        client_secret: config.apps.facebook.secret,
+        client_secret: process.env.FACEBOOK_SECRET,
         grant_type: 'client_credentials'
     }, function (res) {
         logger.log('debug',"Authentication to Facebook was successful!");
@@ -63,7 +40,6 @@ exports.authenticate = function(callback){
 
 exports.ensureAuthenticated = function(callback){
     var $that = this;
-
     this.isSessionValid(function(sessionValid){
         if(sessionValid){
             return callback();
@@ -79,7 +55,6 @@ exports.ensureAuthenticated = function(callback){
 exports.isSessionValid = function(callback){
     var $that = this;
     var accessTokenNotExpired = session.access_token!=null && new Date().getTime() - session.expires > 0;
-
     if(accessTokenNotExpired){
         FB.api('facebook?access_token=' + session.access_token, function (res) {
             if(!res || res.error) {
@@ -93,16 +68,17 @@ exports.isSessionValid = function(callback){
     }
 }
 
-exports.extractData = function(){
+exports.extractData = function(userName, agencyName, criteria){
     var $that = this;
 
     $that.ensureAuthenticated(function(){
         logger.log('debug',"Extracting data from Facebook...");
         var asyncTasks = [];
 
-        searchCriteria.profiles.forEach(function(profile){
+        criteria.profiles.forEach(function(profile){
+            console.log(profile);
             asyncTasks.push(function(callback){
-                $that.extractProfilePosts(profile, callback);
+                $that.extractProfilePosts(userName, agencyName, profile, callback);
             });
         });
 
@@ -115,14 +91,14 @@ exports.extractData = function(){
     })
 }
 
-exports.extractProfilePosts = function(profile, callback){
+exports.extractProfilePosts = function(userName, agencyName, profile, callback){
     logger.log('debug',"Extracting data from Facebook profile %s", profile);
 
     var $that = this;
 
     $that.getLastPostTime('@' + profile, function(lastPostTime){
 
-        $that.extractPostsInfo(profile, lastPostTime, function(){
+        $that.extractPostsInfo(userName, agencyName, profile, lastPostTime, function(){
 
             var asyncTasks = [];
 
@@ -156,39 +132,46 @@ exports.getLastPostTime = function(match, callback){
 }
 
 // extracts id, message, creted_time, icon, link
-exports.extractPostsInfo = function(profile, lastPostTime, callback){
+exports.extractPostsInfo = function(userName, agencyName, profile, lastPostTime, callback){
     var $that = this;
-    var url = profile + '/posts?fields=id,message,created_time,icon,link';
+    var url = profile + '/posts?fields=id,message,picture,full_picture,created_time,icon,link';
     url += '&access_token=' + session.access_token;
     url += lastPostTime!=undefined ? "&since=" + lastPostTime : "";
     url += "&limit=" + config.app.postsLimit;
 
     FB.api(url, function (res) {
-            if(!res || res.error) {
-                $that.handleError(res.error.code, res.error.message, function(){
-                    return $that.extractPostsInfo(profile, lastPostTime, callback);
+        if(!res || res.error) {
+            $that.handleError(res.error.code, res.error.message, function(){
+                return $that.extractPostsInfo(userName, agencyName, profile, lastPostTime, callback);
+            });
+        }
+
+        if(res!=undefined && res.data!=undefined && res.data.length!=0){
+            for(var i in res.data){
+                var entry = res.data[i];
+
+                entry.service = "facebook";
+                entry.profile = profile;
+                entry.match = "@" + profile;
+                entry.userName = userName;
+                entry.agencyName = agencyName;
+
+                extractedPosts.push(entry);
+            }
+
+            if(res.paging!=undefined && res.paging.next!=undefined){
+                bufferedPages.push({
+                    profile: profile,
+                    userName: userName,
+                    agencyName: agencyName,
+                    url: res.paging.next
                 });
             }
 
-            if(res!=undefined && res.data!=undefined && res.data.length!=0){
-                for(var i in res.data){
-                    var entry = res.data[i];
+            return callback();
+        }
 
-                    entry.service = "facebook";
-                    entry.profile = profile;
-                    entry.match = "@" + profile;
-
-                    extractedPosts.push(entry);
-                }
-
-                if(res.paging!=undefined && res.paging.next!=undefined){
-                    bufferedPages.push({profile: profile, url: res.paging.next});
-                }
-
-                return callback();
-            }
-
-            return;
+        return;
 
     });
 }
@@ -214,7 +197,7 @@ exports.extractPostsFromBufferedPages = function(){
 
                             $that.extractPostsLikes(post, function(post){
 
-                                $that.savePost(post, callback);
+                                $that.savePost(userName, agencyName, post, callback);
 
                             });
 
@@ -252,24 +235,32 @@ exports.extractNextInfo = function(bufferedPage, callback){
             });
         }
 
-        body = JSON.parse(body);
+        if(body) {
+            body = JSON.parse(body);
 
-        if(body!=undefined && body.data!=undefined && body.data.length!=0){
-            for(var i in body.data){
-                var entry = body.data[i];
+            if(body!=undefined && body.data!=undefined && body.data.length!=0){
+                for(var i in body.data){
+                    var entry = body.data[i];
 
-                entry.service = "facebook";
-                entry.profile = bufferedPage.profile;
-                entry.match = "@" + bufferedPage.profile;
+                    entry.service = "facebook";
+                    entry.profile = bufferedPage.profile;
+                    entry.match = "@" + bufferedPage.profile;
+                    entry.userName = bufferedPage.userName;
+                    entry.agencyName = bufferedPage.agencyName;
+                    extractedPosts.push(entry);
+                }
 
-                extractedPosts.push(entry);
+                if(body.paging!=undefined && body.paging.next!=undefined){
+                    bufferedPagesInExec.push({
+                        profile: bufferedPage.profile,
+                        userName: bufferedPage.userName,
+                        agencyName: bufferedPage.agencyName,
+                        url: body.paging.next
+                    });
+                }
+
+                return callback();
             }
-
-            if(body.paging!=undefined && body.paging.next!=undefined){
-                bufferedPagesInExec.push({profile: bufferedPage.profile, url: body.paging.next});
-            }
-
-            return callback();
         }
 
         return;
@@ -301,7 +292,8 @@ exports.extractPostsLikes = function(post, cb){
 // saves the post into the db
 exports.savePost = function(postInfo, callback) {
     var post = new Post();
-
+    post.userName = postInfo.userName;
+    post.agencyName = postInfo.agencyName;
     post.id = postInfo.id;
     post.date = new Date(postInfo.created_time);
     post.date_extracted = new Date();
@@ -312,6 +304,7 @@ exports.savePost = function(postInfo, callback) {
     post.url = postInfo.link;
     post.text = postInfo.message;
     post.likes = postInfo.likes;
+    post.image = postInfo.full_picture || postInfo.picture;
 
     post.save();
     callback();

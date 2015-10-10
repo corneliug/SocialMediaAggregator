@@ -3,30 +3,16 @@ var express            = require('express'),
     TwitterAggregator = require('./data_extractors/TwitterAggregator'),
     InstagramAggregator = require('./data_extractors/InstagramAggregator'),
     YoutubeAggregator = require('./data_extractors/YoutubeAggregator'),
-    config = require("../config/config.js");
+    SocrataAggregator = require('./data_extractors/SocrataAggregator'),
+    FoursquareAggregator = require('./data_extractors/FoursquareAggregator'),
+    config = require("../config/config.js"),
+    _ = require('lodash'),
+    User = require('../model/User');
 
 var CRITERIA_TYPE = {
     HASHTAG : '#',
-    PROFILE : '@'
-}
-
-exports.PLATFORMS = {
-    FACEBOOK: {
-        NAME: 'Facebook',
-        CRITERIA: config.accounts.facebook
-    },
-    TWITTER: {
-        NAME: 'Twitter',
-        CRITERIA: config.accounts.twitter
-    },
-    INSTAGRAM: {
-        NAME: 'Instagram',
-        CRITERIA: config.accounts.instagram
-    },
-    YOUTUBE: {
-        NAME: 'Youtube',
-        CRITERIA: config.accounts.youtube
-    }
+    PROFILE : '@',
+    URL : '|',
 }
 
 exports.startExecution = function(){
@@ -38,34 +24,80 @@ exports.startExecution = function(){
     }, config.app.frequency * 1000);
 }
 
-exports.extractData = function(){
-    logger.log('info', 'Running data aggregators');
+var extractDataForUser = function(user) {
+    _.forEach(user.agencies, function(agency) {
+        // console.log("extracting for agency: ");
+        // console.log(agency);
+        if(agency['facebook'].length) {
+            FacebookAggregator.aggregateData(user.name, agency);
+        }
+        if(agency['twitter'].length) {
+            TwitterAggregator.aggregateData(user.name, agency);
+        }
+        if(agency['instagram'].length) {
+            InstagramAggregator.aggregateData(user.name, agency);
+        }
+        if(agency['youtube'].length) {
+            YoutubeAggregator.aggregateData(user.name, agency);
+        }
+        if(agency['socrata'].length) {
+            SocrataAggregator.aggregateData(user.name, agency);
+        }
+        if(agency['foursquare'].length) {
+            FoursquareAggregator.aggregateData(user.name, agency);
+        }
+        //if(agency['socrata'].length) {
+        //    SocrataAggregator.aggregateData(user.name, agency);
+        //}
+    });
+};
 
-    FacebookAggregator.aggregateData();
-    TwitterAggregator.aggregateData();
-    InstagramAggregator.aggregateData();
-    YoutubeAggregator.aggregateData();
+exports.extractData = function(user, callback){
+    logger.log('info', 'Running data aggregators');
+    callback = callback || function() {}; 
+    // Aggregate for 1
+    if(user) {
+        extractDataForUser(user);
+        callback();
+    }
+    // Do them all
+    else {
+        User.allUsers(function(err, users) {
+            // console.log(users);
+            _.forEach(users, function(user) {
+                console.log("extracting for: " + user.name);
+                extractDataForUser(user);
+                callback();
+            });
+        });
+    }
 }
 
-exports.gatherSearchCriteria = function(platform, callback){
-    var criteriaList = platform.CRITERIA;
-    var searchCriteria = {
-        tags: [],
-        profiles: []
-    };
+exports.gatherSearchCriteria = function(userName, agency, platform, callback){
+    var criteriaList = agency[platform] || [];
+    if(criteriaList.length && _.isArray(criteriaList)) {
+        var searchCriteria = {
+            tags: [],
+            profiles: [],
+            url: []
+        };
 
-    for(var index in criteriaList) {
-        var criteria = criteriaList[index];
-        var criteriaType = criteria.substring(0, 1);
+        _.map(criteriaList, function(criteria) {
+             var criteriaType = criteria.substring(0, 1);
 
-        if(criteriaType === CRITERIA_TYPE.HASHTAG) {
-            searchCriteria.tags.push(criteria.substring(1, criteria.length));
-        } else if(criteriaType === CRITERIA_TYPE.PROFILE) {
-            searchCriteria.profiles.push(criteria.substring(1, criteria.length));
-        }
+            if(criteriaType === CRITERIA_TYPE.HASHTAG) {
+                searchCriteria.tags.push(criteria.substring(1, criteria.length));
+            } else if(criteriaType === CRITERIA_TYPE.PROFILE) {
+                searchCriteria.profiles.push(criteria.substring(1, criteria.length));
+            } else {
+                // @todo: make this smarter
+                var arr = criteria.split(CRITERIA_TYPE.URL, 2);
+                searchCriteria.url.push({type: arr[0], url: arr[1]});
+            }
+        });
+
+        logger.log('debug', 'Gathered search criteria for account: %s, agency: %s, service: %s', [userName, agency.name, platform]);
+        return callback(searchCriteria);
     }
-
-    logger.log('debug', 'Gathered search criteria for %s', platform.NAME);
-    return callback(searchCriteria);
 }
 
