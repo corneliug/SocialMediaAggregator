@@ -12,13 +12,13 @@ var extractedPosts = [];
 var bufferedPages = [];
 var bufferedPagesInExec = [];
 
-exports.aggregateData = function(userName, agency) {
+exports.aggregateData = function(userName, agencyName, criteria) {
     var $that = this;
 
-    AggregatorController.gatherSearchCriteria(userName, agency, 'facebook', function(criteria){
+    AggregatorController.gatherSearchCriteria(userName, agencyName, criteria, 'facebook', function(criteria){
         searchCriteria = criteria;
 
-        $that.extractData(userName, agency.name, criteria);
+        $that.extractData(userName, agencyName, criteria);
     });
 }
 
@@ -71,28 +71,17 @@ exports.isSessionValid = function(callback){
 exports.extractData = function(userName, agencyName, criteria){
     var $that = this;
 
-    $that.ensureAuthenticated(function(){
-        logger.log('debug',"Extracting data from Facebook...");
-        var asyncTasks = [];
-
-        criteria.profiles.forEach(function(profile){
-            console.log(profile);
-            asyncTasks.push(function(callback){
-                $that.extractProfilePosts(userName, agencyName, profile, callback);
-            });
-        });
-
-        async.parallel(asyncTasks, function(){
-            if(asyncTasks.length < config.app.postLimit) {
-                $that.extractPostsFromBufferedPages();
-            }
-        });
-
-    })
+    criteria.accounts.forEach(function(account){
+        //AggregatorController.runWithTimeout(account.frequency, function(){
+            $that.ensureAuthenticated(function(){
+                $that.extractProfilePosts(userName, agencyName, account.name, function(){});
+            })
+        //});
+    });
 }
 
 exports.extractProfilePosts = function(userName, agencyName, profile, callback){
-    logger.log('debug',"Extracting data from Facebook profile %s", profile);
+    logger.log('info',"Extracting data from Facebook profile %s", profile);
 
     var $that = this;
 
@@ -111,17 +100,14 @@ exports.extractProfilePosts = function(userName, agencyName, profile, callback){
                         $that.savePost(post, callback);
 
                     });
-
                 });
             });
 
             async.parallel(asyncTasks, function(){
                 callback();
             });
-
         });
     });
-
 }
 
 // will query the db to get the laast post datetime for a profile
@@ -264,7 +250,6 @@ exports.extractNextInfo = function(bufferedPage, callback){
         }
 
         return;
-
     });
 }
 
@@ -286,7 +271,6 @@ exports.extractPostsLikes = function(post, cb){
 
         return cb(post);
     });
-
 }
 
 // saves the post into the db

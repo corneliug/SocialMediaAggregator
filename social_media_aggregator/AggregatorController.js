@@ -10,8 +10,8 @@ var express            = require('express'),
     User = require('../model/User');
 
 var CRITERIA_TYPE = {
-    HASHTAG : '#',
-    PROFILE : '@',
+    HASHTAG : 'hashtag',
+    ACCOUNT : 'account',
     URL : '|',
 }
 
@@ -24,28 +24,34 @@ exports.startExecution = function(){
     }, config.app.frequency * 1000);
 }
 
+exports.runWithTimeout = function(timeout, execute){
+    setInterval(function(){
+        execute();
+    }, timeout * 1000);
+}
+
 var extractDataForUser = function(user) {
     _.forEach(user.agencies, function(agency) {
         // console.log("extracting for agency: ");
         // console.log(agency);
-        if(agency['facebook'].length) {
-            FacebookAggregator.aggregateData(user.name, agency);
+        if(agency.facebook["feeds"].length) {
+            FacebookAggregator.aggregateData(user.name, agency.name, agency.facebook);
         }
-        if(agency['twitter'].length) {
-            TwitterAggregator.aggregateData(user.name, agency);
-        }
-        if(agency['instagram'].length) {
-            InstagramAggregator.aggregateData(user.name, agency);
-        }
-        if(agency['youtube'].length) {
-            YoutubeAggregator.aggregateData(user.name, agency);
-        }
-        if(agency['socrata'].length) {
-            SocrataAggregator.aggregateData(user.name, agency);
-        }
-        if(agency['foursquare'].length) {
-            FoursquareAggregator.aggregateData(user.name, agency);
-        }
+        //if(agency['twitter'].length) {
+        //    TwitterAggregator.aggregateData(user.name, agency);
+        //}
+        //if(agency['instagram'].length) {
+        //    InstagramAggregator.aggregateData(user.name, agency);
+        //}
+        //if(agency['youtube'].length) {
+        //    YoutubeAggregator.aggregateData(user.name, agency);
+        //}
+        //if(agency['socrata'].length) {
+        //    SocrataAggregator.aggregateData(user.name, agency);
+        //}
+        //if(agency['foursquare'].length) {
+        //    FoursquareAggregator.aggregateData(user.name, agency);
+        //}
         //if(agency['socrata'].length) {
         //    SocrataAggregator.aggregateData(user.name, agency);
         //}
@@ -73,30 +79,36 @@ exports.extractData = function(user, callback){
     }
 }
 
-exports.gatherSearchCriteria = function(userName, agency, platform, callback){
-    var criteriaList = agency[platform] || [];
+exports.gatherSearchCriteria = function(userName, agencyName, queryList, platform, callback){
+    var criteriaList = queryList["feeds"] || [];
     if(criteriaList.length && _.isArray(criteriaList)) {
         var searchCriteria = {
             tags: [],
-            profiles: [],
+            accounts: [],
             url: []
         };
 
         _.map(criteriaList, function(criteria) {
-             var criteriaType = criteria.substring(0, 1);
+             var criteriaType = criteria.type;
 
             if(criteriaType === CRITERIA_TYPE.HASHTAG) {
-                searchCriteria.tags.push(criteria.substring(1, criteria.length));
-            } else if(criteriaType === CRITERIA_TYPE.PROFILE) {
-                searchCriteria.profiles.push(criteria.substring(1, criteria.length));
+                searchCriteria.tags.push({
+                    "name": criteria.query,
+                    "frequency": criteria.frequency !=undefined && criteria.frequency!="" ? criteria.frequency : queryList.frequency
+                });
+            } else if(criteriaType === CRITERIA_TYPE.ACCOUNT) {
+                searchCriteria.accounts.push({
+                    "name": criteria.query,
+                    "frequency": criteria.frequency !=undefined && criteria.frequency!="" ? criteria.frequency : queryList.frequency
+                });
             } else {
                 // @todo: make this smarter
-                var arr = criteria.split(CRITERIA_TYPE.URL, 2);
-                searchCriteria.url.push({type: arr[0], url: arr[1]});
+                //var arr = criteria.split(CRITERIA_TYPE.URL, 2);
+                //searchCriteria.url.push({type: arr[0], url: arr[1]});
             }
         });
 
-        logger.log('debug', 'Gathered search criteria for account: %s, agency: %s, service: %s', [userName, agency.name, platform]);
+        logger.log('debug', 'Gathered search criteria for account: %s, agency: %s, service: %s', [userName, agencyName, platform]);
         return callback(searchCriteria);
     }
 }

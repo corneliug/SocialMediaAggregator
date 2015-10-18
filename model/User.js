@@ -6,16 +6,43 @@ var mongoose = require('mongoose'),
 
 var ObjectId = mongoose.Schema.ObjectId;
 
+var FeedSchema = new mongoose.Schema({
+    type: {type: String, required: true},
+    frequency: {type: String, required: false},
+    query: {type: String, required: true}
+});
+
 // Holds an "agency's" accounts
 var AgencySchema = new mongoose.Schema({
     name: {type: String, required : true},
-    facebook: Array,
-    instagram: Array,
-    twitter: Array,
-    youtube: Array,
-    seeclickfix: Array,
-    socrata: Array,
-    foursquare: Array
+    facebook: {
+        frequency: {type: String, required: false},
+        feeds: [FeedSchema]
+    },
+    instagram: {
+        frequency: {type: String, required: false},
+        feeds: [FeedSchema]
+    },
+    twitter: {
+        frequency: {type: String, required: false},
+        feeds: [FeedSchema]
+    },
+    youtube: {
+        frequency: {type: String, required: false},
+        feeds: [FeedSchema]
+    },
+    seeclickfix: {
+        frequency: {type: String, required: false},
+        feeds: [FeedSchema]
+    },
+    socrata: {
+        frequency: {type: String, required: false},
+        feeds: [FeedSchema]
+    },
+    foursquare: {
+        frequency: {type: String, required: false},
+        feeds: [FeedSchema]
+    }
 });
 
 var UserSchema = new mongoose.Schema({
