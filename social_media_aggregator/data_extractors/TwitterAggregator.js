@@ -12,7 +12,7 @@ var searchCriteria = {};
 exports.aggregateData = function(userName, agency) {
     var $that = this;
 
-    AggregatorController.gatherSearchCriteria(userName, agency, 'twitter', function(criteria){
+    AggregatorController.gatherSearchCriteria(userName, agency.name, agency.twitter, 'twitter', function(criteria){
         searchCriteria = criteria;
 
         $that.authenticate(function(success){
@@ -56,18 +56,15 @@ exports.authenticate = function(callback){
 exports.extractData = function(userName, agencyName, criteria){
     logger.log('debug','Extracting data from Twitter...');
     var $that = this;
-    var profilesTasks = [];
-    var tagsTasks = [];
 
-    criteria.profiles.forEach(function(profile){
-        profilesTasks.push(function(callback){
-            $that.getLastPostId('@' + profile, function(lastPostId){
-                logger.log('debug','Extracting data from Twitter profile %s', profile);
-                $that.extractProfilePosts(userName, agencyName, profile, lastPostId, function(posts){
+    criteria.accounts.forEach(function(account){
+
+        AggregatorController.runWithTimeout(account.frequency, null, function(){
+            $that.getLastPostId('@' + account.name, function(lastPostId){
+                logger.log('debug','Extracting data from Twitter profile %s', account.name);
+                $that.extractProfilePosts(userName, agencyName, account.name, lastPostId, function(posts){
                     if(posts!=undefined){
-                        $that.saveProfilePosts(profile, posts, callback);
-                    } else {
-                        callback();
+                        $that.saveProfilePosts(account, posts);
                     }
                 });
             });
@@ -75,24 +72,18 @@ exports.extractData = function(userName, agencyName, criteria){
     });
 
     criteria.tags.forEach(function(tag){
-        tagsTasks.push(function(callback){
-            $that.getLastPostId('#' + tag, function(lastPostId){
+        AggregatorController.runWithTimeout(tag.frequency, null, function(){
+            $that.getLastPostId('#' + tag.name, function(lastPostId){
+                logger.log('debug','Extracting data from Twitter tag %s', tag.name);
                 $that.extractTagPosts(userName, agencyName, tag, lastPostId, function(posts){
                     if(posts!=undefined){
-                        $that.saveTagsPosts(tag, posts, callback);
-                    } else {
-                        callback();
+                        $that.saveTagsPosts(tag, posts);
                     }
                 });
             });
         });
     });
 
-    async.parallel(profilesTasks, function(){
-    });
-
-    async.parallel(tagsTasks, function(){
-    });
 }
 
 exports.getLastPostId = function(match, callback){
@@ -183,7 +174,7 @@ exports.extractProfilePosts = function(userName, agencyName, profile, lastPostId
 
 }
 
-exports.saveProfilePosts = function(profile, posts, callback){
+exports.saveProfilePosts = function(profile, posts){
     var postsTasks = [];
 
     posts.forEach(function(postInfo){
@@ -197,11 +188,11 @@ exports.saveProfilePosts = function(profile, posts, callback){
             post.date = new Date(postInfo.created_at);
             post.date_extracted = new Date();
             post.service = 'twitter';
-            post.account = profile;
-            post.match = '@' + profile;
+            post.account = profile.name;
+            post.match = '@' + profile.name;
             post.text = postInfo.text;
             post.likes = postInfo.retweet_count;
-            post.url = 'https://twitter.com/' + profile + '/status/' + postInfo.id_str;
+            post.url = 'https://twitter.com/' + profile.name + '/status/' + postInfo.id_str;
             post.icon = postInfo.profile_image_url;
 
             var media = _.get(postInfo, 'entities.media');
@@ -211,17 +202,17 @@ exports.saveProfilePosts = function(profile, posts, callback){
                     return false;
                 }
             });
+
             post.save();
             callback();
         });
     });
 
     async.parallel(postsTasks, function(){
-        callback();
     });
 }
 
-exports.saveTagsPosts = function(tag, posts, callback){
+exports.saveTagsPosts = function(tag, posts){
     var tagsTasks = [];
 
     posts.forEach(function(postInfo){
@@ -236,7 +227,7 @@ exports.saveTagsPosts = function(tag, posts, callback){
                 post.date = new Date(postInfo.created_at);
                 post.date_extracted = new Date();
                 post.service = 'twitter';
-                post.match = '#' + tag;
+                post.match = '#' + tag.name;
                 post.text = postInfo.text;
                 post.likes = postInfo.retweet_count;
                 post.account = postInfo.user.screen_name;
@@ -258,6 +249,5 @@ exports.saveTagsPosts = function(tag, posts, callback){
     });
 
     async.parallel(tagsTasks, function(){
-        callback();
     });
 }

@@ -2,7 +2,6 @@ var express = require('express'),
     request = require('request'),
     api = require('instagram-node').instagram(),
     fs = require('fs'),
-    InstagramAggregator = require('../data_extractors/InstagramAggregator'),
     router = express.Router();
 
 router.get('/authenticate', function(req, res) {
@@ -26,7 +25,6 @@ router.get('/authcallback', function(req, res) {
                 if(err) {
                     return logger.log('info', err);
                 }
-                InstagramAggregator.aggregateData();
             });
         }
 

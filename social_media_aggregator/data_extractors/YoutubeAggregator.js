@@ -11,7 +11,7 @@ var searchCriteria = {};
 exports.aggregateData = function(userName, agency) {
     var $that = this;
 
-    AggregatorController.gatherSearchCriteria(userName, agency, 'youtube', function(criteria){
+    AggregatorController.gatherSearchCriteria(userName, agency.name, agency.youtube, 'youtube', function(criteria){
         searchCriteria = criteria;
 
         $that.extractData(userName, agency.name, criteria);
@@ -25,11 +25,11 @@ exports.extractData = function(userName, agencyName, criteria){
 
 exports.extractSearchData = function(userName, agencyName, criteria){
     var $that = this;
-    var searchTasks = [];
 
     criteria.tags.forEach(function(search){
-        searchTasks.push(function(callback){
-            $that.encodeSearchCriteria(search, function(criteria){
+        AggregatorController.runWithTimeout(search.frequency, null, function(){
+            logger.log('info', 'Extracting data from Youtube search %s', search.name);
+            $that.encodeSearchCriteria(search.name, function(criteria){
                 $that.getLastPostTime(criteria, function(lastPostTime){
                     $that.getSearchResults(userName, agencyName, criteria, lastPostTime, function(searchResults){
                         if(searchResults!=undefined){
@@ -46,28 +46,22 @@ exports.extractSearchData = function(userName, agencyName, criteria){
                             });
 
                             async.parallel(videosTasks, function(){
-                                callback()
                             });
-                        } else {
-                            callback();
                         }
                     });
                 });
             });
         });
     });
-
-    async.parallel(searchTasks, function(){
-    });
 }
 
 exports.extractChannelsData = function(userName, agencyName, criteria){
     var $that = this;
-    var channelTasks = [];
 
-    criteria.profiles.forEach(function(channel){
-        channelTasks.push(function(callback){
-            $that.getChannel(channel, function(channelsResult){
+    criteria.accounts.forEach(function(channel){
+        AggregatorController.runWithTimeout(channel.frequency, null, function(){
+            logger.log('info', 'Extracting data from Youtube channel %s', channel.name);
+            $that.getChannel(channel.name, function(channelsResult){
                 if(channelsResult!=undefined){
                     // var playlistIds = [
                     //     channelsResult[0].contentDetails.relatedPlaylists.uploads,
@@ -81,11 +75,14 @@ exports.extractChannelsData = function(userName, agencyName, criteria){
 
                             playlistItems.forEach(function(video){
                                 // get favorite, like, or upload
+
+                                // why??
                                 var videoId =  _.get(video, 'contentDetails.upload.resourceId.videoId')
-                                            || _.get(video, 'contentDetails.like.resourceId.videoId')
-                                            || _.get(video, 'contentDetails.favorite.resourceId.videoId')
-                                            || null;
+                                    || _.get(video, 'contentDetails.like.resourceId.videoId')
+                                    || _.get(video, 'contentDetails.favorite.resourceId.videoId')
+                                    || null;
                                 if(videoId) {
+                                    console.log(videoId);
                                     videosTasks.push(function(callback){
                                         $that.extractVideoInfo(videoId, function(videoInfo){
                                             if(videoInfo!=undefined){
@@ -101,20 +98,12 @@ exports.extractChannelsData = function(userName, agencyName, criteria){
                             });
 
                             async.parallel(videosTasks, function(){
-                                callback()
                             });
-                        } else {
-                            callback();
                         }
                     });
-                } else {
-                    callback();
                 }
             });
         });
-    });
-
-    async.parallel(channelTasks, function(){
     });
 }
 

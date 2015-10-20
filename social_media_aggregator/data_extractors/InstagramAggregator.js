@@ -12,7 +12,7 @@ var searchCriteria = {};
 exports.aggregateData = function(userName, agency) {
     var $that = this;
 
-    AggregatorController.gatherSearchCriteria(userName, agency, 'instagram', function(criteria){
+    AggregatorController.gatherSearchCriteria(userName, agency.name, agency.instagram, 'instagram', function(criteria){
         searchCriteria = criteria;
 
         $that.ensureAuthenticated(function(isAuthenticated){
@@ -41,46 +41,34 @@ exports.ensureAuthenticated = function(callback){
 }
 
 exports.extractData = function(userName, agencyName, criteria){
-    var profilesTasks = [];
-    var tagsTasks = [];
     var $that = this;
 
-    criteria.profiles.forEach(function(profile){
-        profilesTasks.push(function(callback){
-            logger.log('debug', 'Extracting data from Instagram profile %s', profile);
-            $that.getProfileId(profile, function(profileid){
+    criteria.accounts.forEach(function(profile){
+        AggregatorController.runWithTimeout(profile.frequency, null, function(){
+            logger.log('debug', 'Extracting data from Instagram profile %s', profile.name);
+            $that.getProfileId(profile.name, function(profileid){
                 if(profileid!=undefined){
-                    $that.getLastPostId('@' + profile, function(lastPostId){
+                    $that.getLastPostId('@' + profile.name, function(lastPostId){
                         $that.extractProfilePosts(profileid, lastPostId, function(posts){
-                            $that.savePosts(userName, agencyName, '@' + profile, posts, callback);
+                            $that.savePosts(userName, agencyName, '@' + profile.name, posts);
                         });
                     });
-                } else {
-                    callback();
                 }
             });
-
         });
     });
 
     criteria.tags.forEach(function(tag){
-        tagsTasks.push(function(callback){
-            $that.getLastPostId('#' + tag, function(lastPostId){
-                $that.extractTagPosts(tag, lastPostId, function(posts){
+        AggregatorController.runWithTimeout(profile.frequency, null, function(){
+            logger.log('debug', 'Extracting data from Instagram tag %s', tag.name);
+            $that.getLastPostId('#' + tag.name, function(lastPostId){
+                $that.extractTagPosts(tag.name, lastPostId, function(posts){
                     if(posts!=undefined){
-                        $that.savePosts(userName, agencyName, '#' + tag, posts, callback);
-                    } else {
-                        callback();
+                        $that.savePosts(userName, agencyName, '#' + tag.name, posts);
                     }
                 });
             });
         });
-    });
-
-    async.parallel(profilesTasks, function(){
-    });
-
-    async.parallel(tagsTasks, function(){
     });
 }
 
@@ -147,7 +135,7 @@ exports.extractTagPosts = function(tag, lastPostId, callback){
     });
 }
 
-exports.savePosts = function(userName, agencyName, match, posts, callback){
+exports.savePosts = function(userName, agencyName, match, posts){
     var postsTasks = [];
 
     posts.forEach(function(postInfo){
@@ -174,6 +162,5 @@ exports.savePosts = function(userName, agencyName, match, posts, callback){
     });
 
     async.parallel(postsTasks, function(){
-        callback();
     });
 }

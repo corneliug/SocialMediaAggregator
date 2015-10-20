@@ -24,28 +24,35 @@ exports.startExecution = function(){
     }, config.app.frequency * 1000);
 }
 
-exports.runWithTimeout = function(timeout, execute){
+exports.runWithTimeout = function(timeout, authenticate, execute){
     setInterval(function(){
-        execute();
+        if(authenticate!=null){
+            authenticate(function(){
+                execute();
+            });
+        } else {
+            execute();
+        }
     }, timeout * 1000);
 }
 
 var extractDataForUser = function(user) {
     _.forEach(user.agencies, function(agency) {
-        // console.log("extracting for agency: ");
-        // console.log(agency);
         if(agency.facebook["feeds"].length) {
-            FacebookAggregator.aggregateData(user.name, agency.name, agency.facebook);
+            FacebookAggregator.aggregateData(user.name, agency);
         }
-        //if(agency['twitter'].length) {
-        //    TwitterAggregator.aggregateData(user.name, agency);
-        //}
-        //if(agency['instagram'].length) {
-        //    InstagramAggregator.aggregateData(user.name, agency);
-        //}
-        //if(agency['youtube'].length) {
-        //    YoutubeAggregator.aggregateData(user.name, agency);
-        //}
+
+        if(agency.twitter["feeds"].length) {
+            TwitterAggregator.aggregateData(user.name, agency);
+        }
+
+        if(agency.instagram['feeds'].length) {
+            InstagramAggregator.aggregateData(user.name, agency);
+        }
+        
+        if(agency.youtube['feeds'].length) {
+            YoutubeAggregator.aggregateData(user.name, agency);
+        }
         //if(agency['socrata'].length) {
         //    SocrataAggregator.aggregateData(user.name, agency);
         //}

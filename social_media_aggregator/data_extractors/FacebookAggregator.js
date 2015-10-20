@@ -12,13 +12,13 @@ var extractedPosts = [];
 var bufferedPages = [];
 var bufferedPagesInExec = [];
 
-exports.aggregateData = function(userName, agencyName, criteria) {
+exports.aggregateData = function(userName, agency) {
     var $that = this;
 
-    AggregatorController.gatherSearchCriteria(userName, agencyName, criteria, 'facebook', function(criteria){
+    AggregatorController.gatherSearchCriteria(userName, agency.name, agency.facebook, 'facebook', function(criteria){
         searchCriteria = criteria;
 
-        $that.extractData(userName, agencyName, criteria);
+        $that.extractData(userName, agency.name, criteria);
     });
 }
 
@@ -72,11 +72,11 @@ exports.extractData = function(userName, agencyName, criteria){
     var $that = this;
 
     criteria.accounts.forEach(function(account){
-        //AggregatorController.runWithTimeout(account.frequency, function(){
+        AggregatorController.runWithTimeout(account.frequency, null, function(){
             $that.ensureAuthenticated(function(){
                 $that.extractProfilePosts(userName, agencyName, account.name, function(){});
             })
-        //});
+        });
     });
 }
 
