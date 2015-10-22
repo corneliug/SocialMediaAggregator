@@ -72,11 +72,11 @@ exports.extractData = function(userName, agencyName, criteria){
     var $that = this;
 
     criteria.accounts.forEach(function(account){
-        //AggregatorController.runWithTimeout(account.frequency, null, function(){
+        AggregatorController.runWithTimeout(account.frequency, null, function(){
             $that.ensureAuthenticated(function(){
                 $that.extractProfilePosts(userName, agencyName, account.name, function(){});
             })
-        //});
+        });
     });
 }
 
