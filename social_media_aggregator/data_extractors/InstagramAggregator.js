@@ -156,6 +156,14 @@ exports.savePosts = function(userName, agencyName, match, posts){
             post.url = postInfo.link;
             post.icon = postInfo.user.profile_picture;
 
+            if(postInfo.location!=null && postInfo.location.latitude!=null && postInfo.location.longitude!=null) {
+                post.loc = {
+                    type: 'Point',
+                    coordinates: [postInfo.location.longitude, postInfo.location.latitude],
+                    address: postInfo.location.street_address
+                }
+            }
+
             post.save();
             callback();
         });

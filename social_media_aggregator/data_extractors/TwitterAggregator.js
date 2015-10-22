@@ -195,6 +195,10 @@ exports.saveProfilePosts = function(profile, posts){
             post.url = 'https://twitter.com/' + profile.name + '/status/' + postInfo.id_str;
             post.icon = postInfo.profile_image_url;
 
+            if(postInfo.coordinates!=null) {
+                post.loc = postInfo.coordinates;
+            }
+
             var media = _.get(postInfo, 'entities.media');
             _.forEach(media, function(item) {
                 if(_.has(item, 'sizes.small')) {
@@ -233,6 +237,10 @@ exports.saveTagsPosts = function(tag, posts){
                 post.account = postInfo.user.screen_name;
                 post.url = 'https://twitter.com/' + post.account + '/status/' + postInfo.id_str;
                 post.icon = postInfo.user.profile_image_url;
+
+                if(postInfo.coordinates!=null) {
+                    post.loc = postInfo.coordinates;
+                }
 
                 var media = _.get(postInfo, 'entities.media');
                 _.forEach(media, function(item) {

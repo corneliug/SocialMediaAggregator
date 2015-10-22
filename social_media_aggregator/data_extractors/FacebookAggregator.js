@@ -72,11 +72,11 @@ exports.extractData = function(userName, agencyName, criteria){
     var $that = this;
 
     criteria.accounts.forEach(function(account){
-        AggregatorController.runWithTimeout(account.frequency, null, function(){
+        //AggregatorController.runWithTimeout(account.frequency, null, function(){
             $that.ensureAuthenticated(function(){
                 $that.extractProfilePosts(userName, agencyName, account.name, function(){});
             })
-        });
+        //});
     });
 }
 
@@ -97,7 +97,11 @@ exports.extractProfilePosts = function(userName, agencyName, profile, callback){
 
                     $that.extractPostsLikes(post, function(post){
 
-                        $that.savePost(post, callback);
+                        $that.extractPostLocation(post, function(post){
+
+                            $that.savePost(post, callback);
+
+                        });
 
                     });
                 });
@@ -271,6 +275,51 @@ exports.extractPostsLikes = function(post, cb){
 
         return cb(post);
     });
+}
+
+// extracts location
+exports.extractPostLocation = function(post, cb){
+    var $that = this;
+
+    FB.api(post.id + '?summary=true&fields=place&access_token=' + session.access_token, function (res) {
+
+        if(!res || res.error) {
+            $that.handleError(res.error.code, res.error.message, function(){
+                return $that.extractPostLocation(post, cb);
+            });
+        }
+
+        if(res!=undefined && res.place!=undefined  && res.place.id!=undefined){
+
+            FB.api(res.place.id + '?summary=true&fields=location&access_token=' + session.access_token, function (res) {
+                if(res!=undefined && res.location!=undefined){
+
+                    post.loc = {
+                        type: 'Point',
+                        coordinates: [res.location.longitude, res.location.latitude],
+                        address: extractAddress(res.location)
+                    }
+                }
+
+                return cb(post);
+            });
+        } else {
+            return cb(post);
+        }
+
+    });
+}
+
+var extractAddress = function(position){
+    var addr = "";
+    addr += "street: " + position.street + ", ";
+    addr += "state: " + position.state + ", ";
+    addr += "zip: " + position.zip + ", ";
+    addr += "region: " + position.region + ", ";
+    addr += "city: " + position.city + ", ";
+    addr += "country: " + position.country;
+
+    return addr;
 }
 
 // saves the post into the db
