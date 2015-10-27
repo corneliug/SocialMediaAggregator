@@ -21,6 +21,7 @@
     "request": ">=2.60.0",
     "twitter": ">= 1.2.5",
     "winston": ">=1.0.1",
-    "feedparser": ">=1.1.4"
+    "feedparser": ">=1.1.4",
+    "icalendar": ">=0.7.1"
   }
 }
