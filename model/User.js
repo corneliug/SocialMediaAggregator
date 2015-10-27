@@ -12,6 +12,10 @@ var FeedSchema = new mongoose.Schema({
     query: {type: String, required: true}
 });
 
+var SeeClickFixFeedSchema = new mongoose.Schema({
+    status: {type: String, required: true}
+});
+
 // Holds an "agency's" accounts
 var AgencySchema = new mongoose.Schema({
     name: {type: String, required : true},
@@ -33,7 +37,9 @@ var AgencySchema = new mongoose.Schema({
     },
     seeclickfix: {
         frequency: {type: String, required: false},
-        feeds: [FeedSchema]
+        zoom: {type: String, required: false},
+        per_page: {type: String, required: false},
+        feeds: [SeeClickFixFeedSchema]
     },
     socrata: {
         frequency: {type: String, required: false},
@@ -49,6 +55,10 @@ var UserSchema = new mongoose.Schema({
     name: {type: String, unique : true, required : true, dropDups: true},
     id: {type: String, unique : true, required : true, dropDups: true},
     date: Date,
+    loc: {
+        lat: {type: Number, required : true},
+        lng: {type: Number, required : true}
+    },
     agencies: [AgencySchema]
 }, {
     collection: 'sma_users'
