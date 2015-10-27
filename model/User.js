@@ -41,6 +41,10 @@ var AgencySchema = new mongoose.Schema({
         per_page: {type: String, required: false},
         feeds: [SeeClickFixFeedSchema]
     },
+    rss: {
+        frequency: {type: String, required: false},
+        feeds: [FeedSchema]
+    },
     socrata: {
         frequency: {type: String, required: false},
         feeds: [FeedSchema]
