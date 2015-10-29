@@ -49,6 +49,10 @@ var AgencySchema = new mongoose.Schema({
         frequency: {type: String, required: false},
         feeds: [FeedSchema]
     },
+    yelp: {
+        frequency: {type: String, required: false},
+        feeds: [FeedSchema]
+    },
     socrata: {
         frequency: {type: String, required: false},
         feeds: [FeedSchema]

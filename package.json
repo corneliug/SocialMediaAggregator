@@ -22,6 +22,8 @@
     "twitter": ">= 1.2.5",
     "winston": ">=1.0.1",
     "feedparser": ">=1.1.4",
-    "icalendar": ">=0.7.1"
+    "icalendar": ">=0.7.1",
+    "node-uuid": ">=1.4.3",
+    "oauth": ">=0.9.14"
   }
 }
