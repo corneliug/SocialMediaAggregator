@@ -88,11 +88,11 @@ PostSchema.static('deleteByUserAndAgency', function(userName, agencyName){
     }).remove().exec();
 });
 
-PostSchema.static('deleteByUserAndPlatformAndAccount', function(userName, platform, account){
+PostSchema.static('deleteByUserAgencyAndService', function(userName, agencyName, platform){
     this.find({
         userName: userName,
-        service: platform,
-        match: account
+        agencyName: agencyName,
+        service: platform
     }).remove().exec();
 });
 

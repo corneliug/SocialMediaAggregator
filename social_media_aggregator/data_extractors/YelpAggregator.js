@@ -37,23 +37,12 @@ exports.extractData = function(user, agency, oauth){
     agency.yelp['feeds'].forEach(function(query){
         tasks.push(function(callback){
             $that.extractYelpPosts(agency.yelp, query.query, user, oauth, function(posts){
-                $that.savePosts(user.name, 'yelp', query.query, posts, callback);
+                $that.savePosts(user.name, agency.name, query.query, posts, callback);
             });
         });
     });
 
     async.parallel(tasks, function(){
-    });
-}
-
-exports.getLastPostDate = function(match, callback){
-    Post.find({
-        service: 'yelp',
-        match: match
-    }).sort({
-        date: -1
-    }).exec(function (err, posts) {
-        return posts.length!=0 ? callback(posts[0].date) : callback(undefined);
     });
 }
 

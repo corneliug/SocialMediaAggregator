@@ -16,6 +16,11 @@ var SeeClickFixFeedSchema = new mongoose.Schema({
     status: {type: String, required: true}
 });
 
+var GtfsFeedSchema = new mongoose.Schema({
+    type: {type: String, required: true},
+    url: {type: String, required: true}
+});
+
 // Holds an "agency's" accounts
 var AgencySchema = new mongoose.Schema({
     name: {type: String, required : true},
@@ -52,6 +57,10 @@ var AgencySchema = new mongoose.Schema({
     yelp: {
         frequency: {type: String, required: false},
         feeds: [FeedSchema]
+    },
+    gtfs: {
+        frequency: {type: String, required: false},
+        feeds: [GtfsFeedSchema]
     },
     socrata: {
         frequency: {type: String, required: false},
