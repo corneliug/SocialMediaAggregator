@@ -21,6 +21,11 @@ var GtfsFeedSchema = new mongoose.Schema({
     url: {type: String, required: true}
 });
 
+var ElectionFeedSchema = new mongoose.Schema({
+    electionId: {type: String, required: true},
+    address: {type: String, required: true}
+});
+
 // Holds an "agency's" accounts
 var AgencySchema = new mongoose.Schema({
     name: {type: String, required : true},
@@ -61,6 +66,10 @@ var AgencySchema = new mongoose.Schema({
     gtfs: {
         frequency: {type: String, required: false},
         feeds: [GtfsFeedSchema]
+    },
+    election: {
+        frequency: {type: String, required: false},
+        feeds: [ElectionFeedSchema]
     },
     socrata: {
         frequency: {type: String, required: false},
