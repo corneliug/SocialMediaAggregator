@@ -48,7 +48,7 @@ exports.extractElectionData = function(agency, user, election, callback){
                 body = JSON.parse(body);
                 var elections = body.pollingLocations;
 
-                return callback(body);
+                return callback(elections);
             }
         }
     });
