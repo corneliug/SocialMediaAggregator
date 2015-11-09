@@ -52,7 +52,7 @@ exports.extract311Posts = function(agency, status, user, lastPostDate, callback)
     defaultDate.setMonth(defaultDate.getMonth() - 3);
 
     var url = "https://seeclickfix.com/open311/v2/requests.json?";
-    url += "lat=" + user.loc.lat + "&long=" + user.loc.lng;
+    url += "lat=" + user.lat + "&long=" + user.lng;
     url += "&zoom=" + agency.zoom + "&per_page=" + agency.per_page + "&sort=start_date&status=" + status;
     url += lastPostDate!=undefined ? "&start_date=" + lastPostDate.toISOString() : "&start_date=" + defaultDate.toISOString();
 
@@ -118,7 +118,7 @@ exports.savePosts = function(userName, agencyName, match, posts, callback){
 }
 
 exports.proceedIfParamsAreValid = function(user, callback){
-    if(user.loc!=undefined && user.loc.lat!=undefined && user.loc.lng!=undefined){
+    if(user.lat!=undefined && user.lng!=undefined){
         callback();
     }
 }

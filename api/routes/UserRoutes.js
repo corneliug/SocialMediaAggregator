@@ -18,10 +18,11 @@ router.route('/create')
             var NewUser = new User();
             User.createUser(payload, NewUser, function(createError, user) {
                 if(createError) {
+                    console.log(createError);
                     res.status(500).json({ error: 'message' });
                 }
                 else {
-                    res.json({response: 'success'});
+                    res.json({response: 'success', user: user});
                 }
             });
         }

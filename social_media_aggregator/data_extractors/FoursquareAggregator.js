@@ -21,7 +21,7 @@ exports.extractData = function(user, agencyName, criteria){
     criteria.forEach(function(query){
         urlTasks.push(function(callback){
 
-            $that.extractFsquarePosts(user.loc, query.query, function(posts){
+            $that.extractFsquarePosts(user.lat, user.lng, query.query, function(posts){
                 $that.savePosts(user.name, agencyName, query.query, posts, callback);
             });
 
@@ -36,8 +36,8 @@ exports.deletePreviousResults = function(username, match){
     Post.deleteByUserAndPlatformAndAccount(username, 'foursquare', match);
 }
 
-exports.extractFsquarePosts = function(location, query, callback){
-    var url = "https://api.foursquare.com/v2/venues/explore?ll=" + location.lat + "," + location.lng + "&query=" + query;
+exports.extractFsquarePosts = function(lat, lng, query, callback){
+    var url = "https://api.foursquare.com/v2/venues/explore?ll=" + lat + "," + lng + "&query=" + query;
     url += "&limit=" + config.app.postsLimit;
     url += "&radius=5000";
     url += "&venuePhotos=1";

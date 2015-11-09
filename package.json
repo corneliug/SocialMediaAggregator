@@ -25,6 +25,9 @@
     "icalendar": ">=0.7.1",
     "node-uuid": ">=1.4.3",
     "oauth": ">=0.9.14",
-    "adm-zip": ">=0.4.7"
+    "adm-zip": ">=0.4.7",
+    "node-rest-client": ">=1.5.1",
+    "cheerio": ">=0.19.0",
+    "fs": ">=0.0.2"
   }
 }

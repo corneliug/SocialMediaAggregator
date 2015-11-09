@@ -2,6 +2,7 @@ var mongoose = require('mongoose'),
     random = require('mongoose-simple-random'),
     config = require('../config/config.js'),
     Post = require('./Post'),
+    UserDetailsProvider = require('./UserDetailsProvider'),
     _ = require("lodash");
 
 var ObjectId = mongoose.Schema.ObjectId;
@@ -81,18 +82,54 @@ var AgencySchema = new mongoose.Schema({
     }
 });
 
+var RepresentativeAddressSchema = new mongoose.Schema({
+    line1: {type: String, required : false},
+    city: {type: String, required : false},
+    state: {type: String, required : false},
+    zip: {type: String, required : false}
+});
+
+var RepresentativeChannelSchema = new mongoose.Schema({
+    id: {type: String, required : false},
+    type: {type: String, required : false}
+});
+
+var RepresentativeSchema = new mongoose.Schema({
+    name: {type: String, required : false},
+    officeName: {type: String, required : false},
+    divisionId: {type: String, required : false},
+    address: [RepresentativeAddressSchema],
+    party: {type: String, required : false},
+    phones:[{type: String, required : false}],
+    urls: [{type: String, required : false}],
+    channels: [RepresentativeChannelSchema]
+});
+
 var UserSchema = new mongoose.Schema({
-    name: {type: String, unique : true, required : true, dropDups: true},
     id: {type: String, unique : true, required : true, dropDups: true},
+    parent: {type: String, unique : false},
+    type: {type: String, required : false},
+    name: {type: String, unique : true, required : true, dropDups: true},
+    label: {type: String, required : false},
+    teaser: {type: String, required : false},
+    description: {type: String, required : false},
+    image: {type: String, required : false},
+    wikipediaUrl: {type: String, required : false},
+    geojsonUrl: {type: String, required : false},
+    lat: {type: Number, required : true},
+    lng: {type: Number, required : true},
     date: Date,
-    loc: {
-        lat: {type: Number, required : true},
-        lng: {type: Number, required : true}
+    representatives: [RepresentativeSchema],
+    geometry: {
+        type: {type: String, required: true},
+        coordinates: []
     },
     agencies: [AgencySchema]
 }, {
     collection: 'sma_users'
 });
+
+UserSchema.index({ geometry: 'Polygon' });
 
 UserSchema.static('allUsers', function(callback) {
     this.find().exec(function (err, users) {
@@ -106,6 +143,18 @@ UserSchema.static('allUsers', function(callback) {
 UserSchema.static('findUser', function(name, callback){
     this.findOne({
         name: name
+    }).exec(function (err, user) {
+        if(err) {
+            return callback(err);
+        }
+        return user ? callback(undefined, user) : callback(undefined, undefined);
+    });
+});
+
+
+UserSchema.static('findUserById', function(id, callback){
+    this.findOne({
+        _id: id
     }).exec(function (err, user) {
         if(err) {
             return callback(err);
@@ -220,21 +269,30 @@ UserSchema.static('createUser', function(data, NewUser, callback) {
             NewUser.name = data.name;
             NewUser.id = data.name;
             NewUser.date = new Date();
-            NewUser.agencies = [];
-            // Create a new agency for each entry
-            _.forEach(data.agencies, function(agencyData) {
-                //var agency = $that.agencyPopulate(agencyData);
-                NewUser.agencies.push(agencyData);
-            });
-            NewUser.save(function (saveErr) {
-                if(saveErr) {
-                    callback('Save error');
+
+            NewUser.type = data.type;
+            NewUser.label = data.label;
+            NewUser.geojsonUrl = data.geojsonUrl;
+
+            UserDetailsProvider.getUserDetails(NewUser, function(user){
+                user.agencies = [];
+                // Create a new agency for each entry
+                if(data.agencies!=undefined){
+                    _.forEach(data.agencies, function(agencyData) {
+                        //var agency = $that.agencyPopulate(agencyData);
+                        user.agencies.push(agencyData);
+                    });
                 }
-                else {
-                    callback(undefined, NewUser);
-                }
+
+                user.save(function (saveErr) {
+                    if(saveErr) {
+                        callback('Save error');
+                    }
+                    else {
+                        callback(undefined, NewUser);
+                    }
+                });
             });
-            
         }
 
     });
