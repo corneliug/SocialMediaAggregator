@@ -17,6 +17,8 @@ var PostSchema = new mongoose.Schema({
     icon: String,
     image: String,
     url: String,
+    website: String,
+    googleLocalHours: String,
     text: String,
     likes: Number,
     agg_user: String,

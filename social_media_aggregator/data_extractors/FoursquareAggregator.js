@@ -22,7 +22,17 @@ exports.extractData = function(user, agencyName, criteria){
         urlTasks.push(function(callback){
 
             $that.extractFsquarePosts(user.lat, user.lng, query.query, function(posts){
-                $that.savePosts(user.name, agencyName, query.query, posts, callback);
+
+                $that.queryPlaceDetails(user.lat, user.lng, query.query, posts, function(posts){
+
+                    $that.getPlaceDetails(posts, function(posts){
+
+                        $that.savePosts(user.name, agencyName, query.query, posts, callback);
+
+                    });
+
+                });
+
             });
 
         });
@@ -68,8 +78,86 @@ exports.extractFsquarePosts = function(lat, lng, query, callback){
     });
 }
 
-exports.savePosts = function(userName, agencyName, match, posts, callback){
+exports.queryPlaceDetails = function(lat, lng, type, posts, callback){
+    var postsTasks = [];
+    var updatedPosts = [];
 
+    _.forEach(posts, function(post){
+        postsTasks.push(function(callback){
+            var url = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
+
+            url += "location=" + lat + "," + lng;
+            url += "&radius=250";
+            url += "&key=" + config.apps.google.key;
+            url += "&types=" + type;
+            url += "&query=" + post.venue.name;
+
+            request({
+                url: url,
+                method: 'GET'
+            }, function(error, response, body) {
+                if(error || !body || !response) {
+                    callback();
+                } else {
+                    body = JSON.parse(body);
+                    if(body.results.length!=0){
+                        post.place_id = body.results[0].place_id;
+                    }
+
+                    updatedPosts.push(post);
+                    callback();
+                }
+            });
+
+        });
+    });
+
+    async.parallel(postsTasks, function(){
+        callback(updatedPosts);
+    });
+}
+
+exports.getPlaceDetails = function(posts, callback){
+    var postsTasks = [];
+    var updatedPosts = [];
+
+    _.forEach(posts, function(post){
+        postsTasks.push(function(callback){
+
+            if(post.place_id!=undefined){
+                var url = "https://maps.googleapis.com/maps/api/place/details/json?";
+
+                url += "placeid=" + post.place_id;
+                url += "&key=" + config.apps.google.key;
+
+                request({
+                    url: url,
+                    method: 'GET'
+                }, function(error, response, body) {
+                    if(error || !body || !response) {
+                        callback();
+                    } else {
+                        body = JSON.parse(body);
+
+                        if(body.status == 'OK' && body.result!=undefined){
+                            post.website = body.result.website;
+                            post.googleLocalHours  = body.result.opening_hours != undefined ? body.result.opening_hours.weekday_text.join('<br/>') : false;
+                        }
+
+                        updatedPosts.push(post);
+                        callback();
+                    }
+                });
+            }
+        });
+    });
+
+    async.parallel(postsTasks, function(){
+        callback(updatedPosts);
+    });
+}
+
+exports.savePosts = function(userName, agencyName, match, posts, callback){
     if(posts!=undefined && posts.length!=0){
         var postsTasks = [];
 
@@ -85,6 +173,8 @@ exports.savePosts = function(userName, agencyName, match, posts, callback){
                 post.service = 'foursquare';
                 post.account = '';
                 post.match = '#' + match;
+                post.website = postInfo.website;
+                post.googleLocalHours = postInfo.googleLocalHours;
 
                 if(postInfo.venue!=undefined && postInfo.venue.photos!=undefined && postInfo.venue.photos.groups!=undefined){
                     var photoGroup = postInfo.venue.photos.groups[0];
