@@ -77,6 +77,21 @@ router.route('/:user/feed/:agency?')
             res.status(500).json({ error: 'message' });
         }
     });
+
+router.route('/:user/feed')
+    .all(function(req, res, next) {
+        routeAuth(req, res, next);
+    })
+    .get(function(req, res) {
+        Post.getByUser(_.get(req, 'params.user'), function(findErr, user) {
+            if(findErr) {
+                res.status(500).json(findErr);
+            }
+            else {
+                res.json(user);
+            }
+        });
+    });
     
 // router.route('/:user/accounts/delete')
 //     .post(function(req, res) {
@@ -127,5 +142,7 @@ router.route('/:user/feed/:agency?')
 
 //     return destination;
 // }
+
+
 
 module.exports = router;

@@ -5,14 +5,19 @@ var express            = require('express'),
     YoutubeAggregator = require('./data_extractors/YoutubeAggregator'),
     SocrataAggregator = require('./data_extractors/SocrataAggregator'),
     FoursquareAggregator = require('./data_extractors/FoursquareAggregator'),
+    SeeClickFixAggregator = require('./data_extractors/SeeClickFixAggregator'),
+    RSSAggregator = require('./data_extractors/RSSAggregator'),
+    ICalendarAggregator = require('./data_extractors/ICalendarAggregator'),
+    YelpAggregator = require('./data_extractors/YelpAggregator'),
+    GtfsAggregator = require('./data_extractors/GtfsAggregator'),
+    ElectionPollingAggregator = require('./data_extractors/ElectionPollingAggregator'),
     config = require("../config/config.js"),
     _ = require('lodash'),
     User = require('../model/User');
 
 var CRITERIA_TYPE = {
     HASHTAG : 'hashtag',
-    ACCOUNT : 'account',
-    URL : '|',
+    ACCOUNT : 'account'
 }
 
 exports.startExecution = function(){
@@ -49,19 +54,42 @@ var extractDataForUser = function(user) {
         if(agency.instagram['feeds'].length) {
             InstagramAggregator.aggregateData(user.name, agency);
         }
-        
+
         if(agency.youtube['feeds'].length) {
             YoutubeAggregator.aggregateData(user.name, agency);
         }
-        //if(agency['socrata'].length) {
-        //    SocrataAggregator.aggregateData(user.name, agency);
-        //}
-        //if(agency['foursquare'].length) {
-        //    FoursquareAggregator.aggregateData(user.name, agency);
-        //}
-        //if(agency['socrata'].length) {
-        //    SocrataAggregator.aggregateData(user.name, agency);
-        //}
+        if(agency.socrata['feeds'].length) {
+            SocrataAggregator.aggregateData(user.name, agency);
+        }
+
+        if(agency.foursquare['feeds'].length) {
+            FoursquareAggregator.aggregateData(user, agency);
+        }
+
+         if(agency.seeclickfix['feeds'].length) {
+             SeeClickFixAggregator.aggregateData(user, agency);
+        }
+
+         if(agency.rss['feeds'].length) {
+             RSSAggregator.aggregateData(user, agency);
+        }
+
+         if(agency.ical['feeds'].length) {
+             ICalendarAggregator.aggregateData(user, agency);
+        }
+
+        if(agency.yelp['feeds'].length) {
+             YelpAggregator.aggregateData(user, agency);
+        }
+
+        if(agency.gtfs['feeds'].length) {
+             GtfsAggregator.aggregateData(user, agency);
+        }
+
+        if(agency.election['feeds'].length) {
+            ElectionPollingAggregator.aggregateData(user, agency);
+        }
+
     });
 };
 
@@ -108,10 +136,6 @@ exports.gatherSearchCriteria = function(userName, agencyName, queryList, platfor
                     "name": criteria.query,
                     "frequency": criteria.frequency !=undefined && criteria.frequency!="" ? criteria.frequency : queryList.frequency
                 });
-            } else {
-                // @todo: make this smarter
-                //var arr = criteria.split(CRITERIA_TYPE.URL, 2);
-                //searchCriteria.url.push({type: arr[0], url: arr[1]});
             }
         });
 

@@ -60,6 +60,14 @@ PostSchema.static('getLastPostId', function(service, match, callback){
     });
 });
 
+PostSchema.static('getByUser', function(userName, callback){
+    this.find({
+        userName: userName,
+    }).exec(function (err, posts) {
+        return callback(posts);
+    });
+});
+
 PostSchema.static('getLatest', function(criteria, limit, callback){
     limit =  limit!=undefined ? limit : config.app.feedLimit;
     this.find(criteria).sort({

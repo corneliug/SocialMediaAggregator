@@ -76,7 +76,6 @@ router.route('/delete')
         }
     });
 
-
 router.route('/:user/aggregate')
     .all(function(req, res, next) {
         routeAuth(req, res, next);
@@ -94,5 +93,6 @@ router.route('/:user/aggregate')
             }
         });
     });
+
 
 module.exports = router;

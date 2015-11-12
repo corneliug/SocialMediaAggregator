@@ -11,10 +11,13 @@ var express = require('express'),
     InstagramRoutes = require(__dirname + '/social_media_aggregator/routes/InstagramRoutes'),
     basicAuth = require('basic-auth');
 
+require('./config/db');
+
 // Load ENV
 var path = process.env.MONGO_PORT_27017_TCP_ADDR 
          ? '/src/.env'
          : '.env';
+
 require('dotenv').config({path: path});
 
 global.config = require(__dirname + "/config/config.js");
@@ -74,16 +77,10 @@ app.use(session({
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(bodyParser.json()); // for parsing application/json
 
-require('./config/db');
-
 // Test home route
 app.get('/', function(req, res) {
     res.send("Hello");
-<<<<<<< HEAD
     AggregatorController.extractData();
-=======
-    //AggregatorController.extractData();
->>>>>>> master
 });
 
 app.listen(config.port);
