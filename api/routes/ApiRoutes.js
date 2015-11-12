@@ -61,37 +61,67 @@ router.route('/:user/feed/:agency?')
     .get(function(req, res) {
         var limit       = _.get(req, 'query.limit') || 10,
             userName    = _.get(req, 'params.user'),
-            agencyName  = _.get(req, 'params.agency') || 'default',
-            services    = _.get(req, 'query.services');
+            agencyName  = _.get(req, 'params.agency'),
+            services    = _.get(req, 'query.services'),
+            service    = _.get(req, 'params.service'),
+            type  = _.get(req, 'params.type'),
+            query  = _.get(req, 'params.query');
 
-        if(userName) {
-            var postsList  = [],
-                asyncTasks = getPostsFromUserAsync(
-                                userName, agencyName, limit, services, postsList
-                             );
-            async.parallel(asyncTasks, function(){
-                res.json(postsList);
-            });
+        if(userName!=undefined) {
+            if(agencyName!=undefined ) {
+                var postsList  = [],
+                    asyncTasks = getPostsFromUserAsync(
+                        userName, agencyName, limit, services, postsList
+                    );
+                async.parallel(asyncTasks, function(){
+                    res.json(postsList);
+                });
+            } else if (services!=undefined){
+                services = services.split(",");
+
+                Post.getByUserAndServices(userName, services, function(findErr, posts) {
+                    if(findErr) {
+                        res.status(500).json(findErr);
+                    }
+                    else {
+                        res.json(posts);
+                    }
+                });
+            } else {
+                Post.getByUser(userName, function(findErr, posts) {
+                    if(findErr) {
+                        res.status(500).json(findErr);
+                    }
+                    else {
+                        res.json(posts);
+                    }
+                });
+            }
         }
         else {
             res.status(500).json({ error: 'message' });
         }
     });
 
-router.route('/:user/feed')
-    .all(function(req, res, next) {
-        routeAuth(req, res, next);
-    })
+router.route('/:user/feed/:service/:type/:query')
     .get(function(req, res) {
-        Post.getByUser(_.get(req, 'params.user'), function(findErr, user) {
-            if(findErr) {
-                res.status(500).json(findErr);
-            }
-            else {
-                res.json(user);
-            }
-        });
+        var userName    = _.get(req, 'params.user'),
+            service  = _.get(req, 'params.service'),
+            type  = _.get(req, 'params.type'),
+            query  = _.get(req, 'params.query');
+
+        if(userName!=undefined && service!=undefined && type!=undefined && query!=undefined){
+            Post.getByUserServiceTypeAndQuery(userName, service, type, query, function(findErr, posts) {
+                if(findErr) {
+                    res.status(500).json(findErr);
+                }
+                else {
+                    res.json(posts);
+                }
+            });
+        }
     });
+
     
 // router.route('/:user/accounts/delete')
 //     .post(function(req, res) {

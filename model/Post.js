@@ -62,7 +62,36 @@ PostSchema.static('getLastPostId', function(service, match, callback){
 
 PostSchema.static('getByUser', function(userName, callback){
     this.find({
+        userName: userName
+    }).exec(function (err, posts) {
+        return callback(posts);
+    });
+});
+
+PostSchema.static('getByUserAndServices', function(userName, services, callback){
+    this.find({
         userName: userName,
+        service: { $in : services}
+    }).exec(function (err, posts) {
+        return callback(posts);
+    });
+});
+
+PostSchema.static('getByUserServiceTypeAndQuery', function(userName, service, type, query, callback){
+    var match = '';
+
+    if(type == 'account') {
+        match = '@';
+    } else if(type == 'hashtag') {
+        match = '#';
+    }
+
+    match+= query;
+
+    this.find({
+        userName: userName,
+        match: match,
+        service: service
     }).exec(function (err, posts) {
         return callback(posts);
     });
