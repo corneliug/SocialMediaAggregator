@@ -68,7 +68,7 @@ exports.savePosts = function(userName, agencyName, match, posts, callback){
     if(posts!=undefined && posts.length!=0){
         var postsTasks = [];
 
-        posts.forEach(function(postInfo){
+        _.forEach(posts, function(postInfo){
             postsTasks.push(function(callback){
                 var post = new Post();
 
@@ -78,15 +78,20 @@ exports.savePosts = function(userName, agencyName, match, posts, callback){
                 post.date = new Date(postInfo.datetime);
                 post.date_extracted = new Date();
                 post.service = 'socrata';
-                post.account = "";
+                post.account = '';
                 post.match = match;
-                post.image = "";
+                post.image = '';
                 post.text = postInfo.description;
                 post.likes = 0;
-                post.loc = {
-                    type : "Point",
-                    coordinates : [parseFloat(postInfo.location_1.longitude), parseFloat(postInfo.location_1.latitude)],
-                    address: postInfo.location_1.human_address
+
+                if(postInfo.location_1!=undefined){
+                    post.loc = {
+                        type : "Point",
+                        coordinates : [parseFloat(postInfo.location_1.longitude), parseFloat(postInfo.location_1.latitude)],
+                        address: postInfo.location_1.human_address
+                    }
+                } else {
+                    post.loc = {};
                 }
 
                 post.url = "";

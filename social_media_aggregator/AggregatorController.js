@@ -86,9 +86,9 @@ var extractDataForUser = function(user) {
              GtfsAggregator.aggregateData(user, agency);
         }
 
-        if(agency.election['feeds'].length) {
-            ElectionPollingAggregator.aggregateData(user, agency);
-        }
+        //if(agency.election['feeds'].length) {
+        //    ElectionPollingAggregator.aggregateData(user, agency);
+        //}
 
     });
 };

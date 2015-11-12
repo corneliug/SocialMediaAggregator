@@ -182,7 +182,7 @@ exports.getLastPostTime = function(match, callback){
     });
 }
 
-exports.getSearchResults = function(searchCriteria, lastPostTime, callback){
+exports.getSearchResults = function(userName, agencyName, searchCriteria, lastPostTime, callback){
     logger.log('debug', 'Extracting data from Youtube search %s', searchCriteria);
     var url = 'https://www.googleapis.com/youtube/v3/search?part=id,snippet&q=' + searchCriteria + '&type=video&key=' + config.apps.google.key;
     url += lastPostTime!=undefined ? "&publishedAfter=" + lastPostTime : "";
@@ -194,8 +194,7 @@ exports.getSearchResults = function(searchCriteria, lastPostTime, callback){
     }, function(error, response, body) {
         if(error || !body || !response) {
             return callback(undefined);
-        }
-        else {
+        } else {
             body = JSON.parse(body);
 
             return body!=undefined && body.items!=undefined && body.items.length!=0 ? callback(body.items) : callback(undefined);

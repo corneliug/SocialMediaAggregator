@@ -59,7 +59,7 @@ exports.extractData = function(userName, agencyName, criteria){
     });
 
     criteria.tags.forEach(function(tag){
-        AggregatorController.runWithTimeout(profile.frequency, null, function(){
+        AggregatorController.runWithTimeout(tag.frequency, null, function(){
             logger.log('debug', 'Extracting data from Instagram tag %s', tag.name);
             $that.getLastPostId('#' + tag.name, function(lastPostId){
                 $that.extractTagPosts(tag.name, lastPostId, function(posts){
