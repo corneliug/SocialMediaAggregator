@@ -104,7 +104,6 @@ exports.extractData = function(user, callback){
     // Do them all
     else {
         User.allUsers(function(err, users) {
-            // console.log(users);
             _.forEach(users, function(user) {
                 console.log("extracting for: " + user.name);
                 extractDataForUser(user);

@@ -82,7 +82,6 @@ exports.extractChannelsData = function(userName, agencyName, criteria){
                                     || _.get(video, 'contentDetails.favorite.resourceId.videoId')
                                     || null;
                                 if(videoId) {
-                                    console.log(videoId);
                                     videosTasks.push(function(callback){
                                         $that.extractVideoInfo(videoId, function(videoInfo){
                                             if(videoInfo!=undefined){

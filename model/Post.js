@@ -56,7 +56,7 @@ PostSchema.static('getLastPostId', function(service, match, callback){
     }).sort({
         id: -1
     }).exec(function (err, posts) {
-        return posts.length!=0 ? callback(posts[0].id) : callback(undefined);
+        return posts=undefined && posts.length!=0 ? callback(posts[0].id) : callback(undefined);
     });
 });
 
