@@ -116,12 +116,12 @@ var UserSchema = new mongoose.Schema({
     image: {type: String, required : false},
     wikipediaUrl: {type: String, required : false},
     geojsonUrl: {type: String, required : false},
-    lat: {type: Number, required : true},
-    lng: {type: Number, required : true},
+    lat: {type: Number, required : false},
+    lng: {type: Number, required : false},
     date: Date,
     representatives: [RepresentativeSchema],
     geometry: {
-        type: {type: String, required: true},
+        type: {type: String, required: false},
         coordinates: []
     },
     agencies: [AgencySchema]

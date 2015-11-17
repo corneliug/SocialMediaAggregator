@@ -50,7 +50,7 @@ exports.getLatLng = function(user, callback){
 }
 
 exports.getGeoData = function(user, callback){
-    if(!isCity(user)){
+    if(!isCity(user) && user.parent!=undefined){
         User.findUserById(user.parent, function(err, usr){
             if(usr!=undefined){
                 var geoJsonUrl = usr.geojsonUrl;
