@@ -194,49 +194,74 @@ UserSchema.static('updateAgencies', function(userName, agencies, callback, delet
             callback('User doesn\'t exist');
         }
         else {
-            // Run through included agencies
-            _.forEach(agencies, function(newAgencyData) {
-                // exists?
-                var present = false;
-                // Run through user's current agencies, update
+            _.forEach(agencies, function(agency){
+
+                var existentAgency = false;
+
                 _.forEach(user.agencies, function(userAgency, agencyKey) {
-                    // Agency exists
-                    if(newAgencyData.name == userAgency.name) {
-                        // Run through services
-                        _.forEach(newAgencyData, function(accounts, serviceKey) {
-                            if(serviceKey == 'name') {
-                                return true;
-                            }
-                            // delete existing
+                    if(agency.name == userAgency.name) {
+
+                        _.forEach(agency, function(service, serviceName){
+
                             if(deleteMode) {
+                                var toDelete = [];
+
                                 // Grab items to delete
-                                var toDelete = _.intersection(accounts, userAgency[serviceKey]);
-                                _.forEach(toDelete, function(deleting) {
-                                    // @TODO delete posts
-                                    Post.deleteByUserAndPlatformAndAccount(userName, serviceKey, deleting);
-                                    console.log("Deleting posts for:" + deleting);
+                                _.forEach(service.feeds, function(entry){
+
+                                    _.forEach(userAgency[serviceName].feeds, function(existEntry){
+                                        if(existEntry.type == entry.type && existEntry.query == entry.query){
+                                            toDelete.push(entry);
+                                        }
+                                    })
+
                                 });
-                                // Set difference
-                                user.agencies[agencyKey][serviceKey] = _.difference(accounts, userAgency[serviceKey]);
-                            }
-                            // update
-                            else {
-                                // Combine
-                                user.agencies[agencyKey][serviceKey] = _.union(accounts, userAgency[serviceKey]);
+
+                                _.forEach(toDelete, function(entry){
+                                    logger.log('info',"deleting posts for agency: %s, service: %s, type: %s, query: %s", agency.name, serviceName, entry.type, entry.query);
+                                    //Post.deleteByUserAgencyServiceAndQuery(userName, serviceName, entry.query);
+                                });
+
+                                _.forEach(service.feeds, function(entry){
+                                    var toAdd = true;
+
+                                    _.forEach(toDelete, function(entryToDelete){
+                                        if(entryToDelete.type == entry.type && entryToDelete.query == entry.query){
+                                            toAdd = false;
+                                        }
+                                    })
+
+                                    if(toAdd){
+                                        user.agencies[agencyKey][serviceName].feeds.push(entry);
+                                    }
+                                });
+                            } else {
+                                _.forEach(service.feeds, function(entry){
+                                    var toAdd = true;
+
+                                    _.forEach(userAgency[serviceName].feeds, function(existentEntry){
+                                        if(existentEntry.type == entry.type && existentEntry.query == entry.query){
+                                            toAdd = false;
+                                        }
+                                    })
+
+                                    if(toAdd){
+                                        user.agencies[agencyKey][serviceName].feeds.push(entry);
+                                    }
+                                });
                             }
                         });
 
-                        present = true;
-                        // break out
+                        existentAgency = true;
                         return false;
                     }
-
                 });
+
                 // Wasn't present so add to user
-                if(!present) {
-                    //var agency = $that.agencyPopulate(newAgencyData);
-                    user.agencies.push(newAgencyData);
+                if(!existentAgency) {
+                    user.agencies.push(agency);
                 }
+
             });
             
             
